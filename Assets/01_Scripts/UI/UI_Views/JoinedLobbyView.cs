@@ -28,6 +28,7 @@ public class JoinedLobbyView : UIView
 
 	private void OnDestroy()
 	{
+		if (LobbyManager.InstanceIsNull) return;
 		LobbyManager.Instance.OnJoinedLobby -= OnJoinedLobbyHandler;
 		LobbyManager.Instance.OnJoinedLobbyUpdate -= OnJoinedLobbyUpdateHandler;
 		LobbyManager.Instance.OnLeaveLobby -= OnLeaveLobbyHandler;

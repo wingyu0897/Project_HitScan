@@ -14,6 +14,12 @@ public class PlayerInput : NetworkBehaviour
 
 	private void Update()
 	{
+		MovementInput();
+		WeaponInput();
+	}
+
+	private void MovementInput()
+	{
 		if (!IsOwner) return;
 
 		if (Input.GetKey(KeyCode.D)) _movement.SetMove(Vector2.right);
@@ -21,10 +27,20 @@ public class PlayerInput : NetworkBehaviour
 
 		if (Input.GetKey(KeyCode.W))
 			_movement.Jump();
+	}
+
+	private void WeaponInput()
+	{
+		if (!IsOwner) return;
 
 		if (Input.GetMouseButtonDown(0))
-		{
+			_weaponHolder.TriggerOn();
+		if (Input.GetMouseButtonUp(0))
+			_weaponHolder.TriggerOff();
+		if (Input.GetMouseButton(0))
 			_weaponHolder.Attack();
-		}
+
+		if (Input.GetKeyDown(KeyCode.R))
+			_weaponHolder.Reload();
 	}
 }

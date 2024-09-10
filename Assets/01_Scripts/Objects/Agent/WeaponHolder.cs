@@ -20,7 +20,7 @@ public class WeaponHolder : NetworkBehaviour
 		_beforePos = transform.position;
 	}
 
-	private void Update()
+	private void FixedUpdate()
 	{
 		if (!IsOwner) return;
 
@@ -40,11 +40,49 @@ public class WeaponHolder : NetworkBehaviour
 		Vector2 mouseDir = mousePos - _beforePos;
 		float angle = Mathf.Atan2(mouseDir.y, mouseDir.x) * Mathf.Rad2Deg;
 
+		_weaponTrm.localScale = new Vector3(1, (angle > 90f || angle < -90f) ? -1 : 1, 1);
 		_weaponTrm.rotation = Quaternion.Euler(0, 0, angle);
+	}
+
+	public void TriggerOn()
+	{
+		TriggerOnServerRpc();
 	}
 
 	public void Attack()
 	{
+		AttackServerRpc();
+	}
+
+	public void TriggerOff()
+	{
+		TriggerOffServerRpc();
+	}
+
+	public void Reload()
+	{
+		ReloadServerRpc();
+	}
+
+	[ServerRpc]
+	private void TriggerOnServerRpc()
+	{
+		_weapon.ClientId = OwnerClientId;
+		_weapon?.TriggerOn();
+	}
+	[ServerRpc]
+	private void AttackServerRpc()
+	{
 		_weapon?.Attack();
+	}
+	[ServerRpc]
+	private void TriggerOffServerRpc()
+	{
+		_weapon?.TriggerOff();
+	}
+	[ServerRpc]
+	private void ReloadServerRpc()
+	{
+		_weapon.Reload();
 	}
 }

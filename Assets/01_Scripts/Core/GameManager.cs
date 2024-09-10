@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
@@ -34,6 +33,8 @@ public class GameManager : MonoSingleton<GameManager>
 		DontDestroyOnLoad(gameObject);
 	}
 
+	#region Relay
+
 	public async Task<string> CreateRelayGame(UserData userData)
 	{
 		SceneManager.LoadScene("Game");
@@ -60,6 +61,10 @@ public class GameManager : MonoSingleton<GameManager>
 		RelayManager.Instance.JoinRelay(code, userData);
 	}
 
+	#endregion
+
+	#region Battle
+
 	public void AddUser(ulong clientId)
 	{
 		if (_redTeam.Count > _blueTeam.Count)
@@ -77,8 +82,10 @@ public class GameManager : MonoSingleton<GameManager>
 		{
 			Debug.Log($"Player: {NetworkServer?.GetUserDataByClientID(pair.Key).UserName}, Team: {pair.Value}");
 		}
-	}
 
+		foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+			client.PlayerObject.GetComponent<PlayerAgent>().SetLayerClientRpc(LayerMask.NameToLayer(GetTeam(client.ClientId).ToString()));
+	}
 	public void RemoveUser(ulong clientId)
 	{
 		if (_clientId2Team.ContainsKey(clientId))
@@ -94,6 +101,18 @@ public class GameManager : MonoSingleton<GameManager>
 			_clientId2Team.Remove(clientId);
 		}
 	}
+
+	public bool IsAttackable(ulong clientId1, ulong clientId2)
+	{
+		return _clientId2Team[clientId1] != _clientId2Team[clientId2];
+	}
+
+	public TEAM_TYPE GetTeam(ulong clientId)
+	{
+		return _clientId2Team[clientId];
+	}
+
+	#endregion
 
 	protected override void OnDestroy()
 	{

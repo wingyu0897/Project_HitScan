@@ -97,9 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dd7c51121d38c24f8a90f848262e931, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _damage: 1
-  _fireRate: 1
-  _distance: 50
+  _data: {fileID: 11400000, guid: 2949a3b1f4eb78f438b63bfa084d0845, type: 2}
   ClientId: 0
 --- !u!1 &4046991475375814967
 GameObject:
@@ -118,6 +116,7 @@ GameObject:
   - component: {fileID: 5601040846138925514}
   - component: {fileID: 8773491002279673756}
   - component: {fileID: 4949522664633068246}
+  - component: {fileID: 3995513169374696498}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -270,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d503031a56d2984d9b6b0d39fbbf77d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 5
+  _moveSpeed: 7
   _jumpForce: 5
   _coyoteTime: 0.1
 --- !u!114 &4949522664633068246
@@ -288,6 +287,21 @@ MonoBehaviour:
   _weaponTrm: {fileID: 7212784913174931662}
   _weaponLerp: 15
   _weapon: {fileID: 2051471104631421179}
+--- !u!114 &3995513169374696498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4046991475375814967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fb3ae32efc8ffd4ab713eead825ff6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 100
+  CurrentHealth:
+    m_InternalValue: 0
 --- !u!1 &6004547861275734647
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,7 +355,7 @@ MonoBehaviour:
   SyncRotAngleY: 0
   SyncRotAngleZ: 1
   SyncScaleX: 0
-  SyncScaleY: 0
+  SyncScaleY: 1
   SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01

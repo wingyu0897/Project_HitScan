@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
+  m_Name: Sample
+  m_EditorClassIdentifier: 
+  Damage: 50
+  MaxAmmo: 7
+  FireRate: 1
+  FireRange: 50
+  ReloadTime: 1
+  IsAuto: 0
+  _bulletTrailPrefab: {fileID: 7225524804424330371, guid: 4caf20709bf55bc438cbca4497acf1fc, type: 3}
