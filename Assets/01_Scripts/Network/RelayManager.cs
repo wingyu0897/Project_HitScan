@@ -1,3 +1,4 @@
+using System.Text;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 public class RelayManager : MonoSingleton<RelayManager>
 {
-	public async Task<string> CreateRelay()
+	public async Task<string> CreateRelay(UserData userData)
 	{
 		try
 		{
@@ -22,6 +23,7 @@ public class RelayManager : MonoSingleton<RelayManager>
 
 			NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
+			NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(JsonUtility.ToJson(userData));
 			NetworkManager.Singleton.StartHost();
 
 			return joinCode;
@@ -33,7 +35,7 @@ public class RelayManager : MonoSingleton<RelayManager>
 		}
 	}
 
-	public async void JoinRelay(string joinCode)
+	public async void JoinRelay(string joinCode, UserData userData)
 	{
 		try
 		{
@@ -43,6 +45,7 @@ public class RelayManager : MonoSingleton<RelayManager>
 
 			NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
+			NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(JsonUtility.ToJson(userData));
 			NetworkManager.Singleton.StartClient();
 		}
 		catch (RelayServiceException e)

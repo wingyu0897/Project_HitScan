@@ -123,7 +123,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 					// Game Started
 					if (!IsLobbyHost())
 					{
-						GameManager.Instance.JoinRelayGame(_joinedLobby.Data[KEY_START_GAME].Value);
+						GameManager.Instance.JoinRelayGame(_joinedLobby.Data[KEY_START_GAME].Value, new UserData { UserName = _playerName });
 					}
 
 					_isJoinedGame = true;
@@ -348,8 +348,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 		{
 			try
 			{
-				//string relayCode = await RelayManager.Instance.CreateRelay();
-				string relayCode = await GameManager.Instance.CreateRelayGame();
+				string relayCode = await GameManager.Instance.CreateRelayGame(new UserData{ UserName = _playerName });
 
 				Lobby lobby = await Lobbies.Instance.UpdateLobbyAsync(_joinedLobby.Id, new UpdateLobbyOptions
 				{
