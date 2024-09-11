@@ -1,2 +1,1 @@
-# Project_HitScan
-Project_HitScan
+안녕하세요 기획이 변경된 히트스캔입니다.
