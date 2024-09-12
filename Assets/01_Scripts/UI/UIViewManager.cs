@@ -23,6 +23,12 @@ public class UIViewManager : MonoSingleton<UIViewManager>
 			ShowView(_views[0]);	
 	}
 
+	public T GetScene<T>() where T : UIView
+	{
+		T view = _views.Find(v => v.GetType() == typeof(T)) as T;
+		return view;
+	}
+
 	public void ShowView<T>() where T : UIView
 	{
 		UIView view = _views.Find(view => view is T);

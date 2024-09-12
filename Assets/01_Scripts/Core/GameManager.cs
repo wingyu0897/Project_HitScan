@@ -82,10 +82,8 @@ public class GameManager : MonoSingleton<GameManager>
 		{
 			Debug.Log($"Player: {NetworkServer?.GetUserDataByClientID(pair.Key).UserName}, Team: {pair.Value}");
 		}
-
-		foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-			client.PlayerObject.GetComponent<PlayerAgent>().SetLayerClientRpc(LayerMask.NameToLayer(GetTeam(client.ClientId).ToString()));
 	}
+
 	public void RemoveUser(ulong clientId)
 	{
 		if (_clientId2Team.ContainsKey(clientId))

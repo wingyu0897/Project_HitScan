@@ -46,42 +46,21 @@ public class WeaponHolder : NetworkBehaviour
 
 	public void TriggerOn()
 	{
-		TriggerOnServerRpc();
+		_weapon.ClientId = OwnerClientId;
+		_weapon?.TriggerOn();
 	}
 
 	public void Attack()
 	{
-		AttackServerRpc();
+		_weapon?.Attack();
 	}
 
 	public void TriggerOff()
 	{
-		TriggerOffServerRpc();
+		_weapon?.TriggerOff();
 	}
 
 	public void Reload()
-	{
-		ReloadServerRpc();
-	}
-
-	[ServerRpc]
-	private void TriggerOnServerRpc()
-	{
-		_weapon.ClientId = OwnerClientId;
-		_weapon?.TriggerOn();
-	}
-	[ServerRpc]
-	private void AttackServerRpc()
-	{
-		_weapon?.Attack();
-	}
-	[ServerRpc]
-	private void TriggerOffServerRpc()
-	{
-		_weapon?.TriggerOff();
-	}
-	[ServerRpc]
-	private void ReloadServerRpc()
 	{
 		_weapon.Reload();
 	}

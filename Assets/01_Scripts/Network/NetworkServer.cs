@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,7 +9,7 @@ public class UserData
 	public string UserName;
 }
 
-public class NetworkServer
+public class NetworkServer : IDisposable
 {
 	private NetworkManager _networkManager;
 	private NetworkObject _playerPrefab;
@@ -43,7 +44,6 @@ public class NetworkServer
 
 	private void HandleClientConnect(ulong clientId)
 	{
-		RespawnPlayer(clientId);
 		GameManager.Instance.AddUser(clientId);
 	}
 
@@ -52,10 +52,11 @@ public class NetworkServer
 		GameManager.Instance.RemoveUser(clientId);
 	}
 
-	private void RespawnPlayer(ulong clientId)
+	public void RespawnPlayer(ulong clientId, Vector3 pos = default(Vector3))
 	{
-		NetworkObject instance = GameObject.Instantiate(_playerPrefab, Vector3.zero, Quaternion.identity);
+		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
 
+		NetworkObject instance = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
 		instance.SpawnAsPlayerObject(clientId);
 	}
 

@@ -12,6 +12,7 @@ public class Weapon : NetworkBehaviour
 	private float _lastFireTime;
 
     public ulong ClientId;
+	public Collider2D OwnerCollider;
 
 	private void Awake()
 	{
@@ -40,32 +41,51 @@ public class Weapon : NetworkBehaviour
 
 		_lastFireTime = Time.time;
 
-
-		string oppent = GameManager.Instance.GetTeam(ClientId) == TEAM_TYPE.Red ? "Blue" : "Red";
-		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer(oppent));
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.right, _data.FireRange, layer);
-
-		DrawTraceClientRpc(oppent);
-
-		if (hit.collider != null)
-		{
-			if (hit.collider.attachedRigidbody != null && hit.collider.attachedRigidbody.TryGetComponent(out Health health))
-			{
-				if (GameManager.Instance.IsAttackable(ClientId, health.OwnerClientId)) // 아군이 아닌지 확인
-				{
-					health.Damage(_data.Damage, ClientId);
-				}
-			}
-
-			//float tracerTime = Vector2.Distance(transform.position, hit.point) < 5f ? 0f : 0.1f;
-			//DrawTraceClientRpc(transform.position, hit.point, tracerTime);
-		}
-		//else
-			//DrawTraceClientRpc(transform.position, transform.right * _data.FireRange, 0.1f);
-
+		DrawTraceImmediatley();
+		AttackServerRpc(ClientId);
+		
 		--_ammo;
+	}
 
-		//AttackServerRpc();
+	[ServerRpc]
+	private void AttackServerRpc(ulong clientId)
+	{
+		ClientId = clientId;
+
+		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+
+		RaycastHit2D[] hits = new RaycastHit2D[2];
+		Physics2D.RaycastNonAlloc(transform.position, transform.right, hits, _data.FireRange, layer);
+
+		for (int i = 0; i < hits.Length; ++i)
+		{
+			if (hits[i].collider != null)
+			{
+				if (hits[i].collider.attachedRigidbody != null && hits[i].collider.attachedRigidbody.TryGetComponent(out Health health))
+				{
+					print(ClientId);
+					print(health.OwnerClientId);
+
+					if (health.OwnerClientId == ClientId)
+					{
+						print("Owner Hit");
+						continue;
+					}
+
+					print("Agent Hit");
+					if (GameManager.Instance.IsAttackable(ClientId, health.OwnerClientId)) // 아군이 아닌지 확인
+					{
+						health.Damage(_data.Damage, ClientId);
+					}
+				}
+
+				float tracerTime = 0.1f * (Vector2.Distance(transform.position, hits[i].point) / _data.FireRange);
+				DrawTrace(transform.position, hits[i].point, tracerTime);
+				return;
+			}
+		}
+
+		DrawTraceClientRpc(transform.position, transform.position + transform.right * _data.FireRange, 0.1f);
 	}
 
 	public virtual void TriggerOff()
@@ -95,19 +115,45 @@ public class Weapon : NetworkBehaviour
 		_isReloading = false;
 	}
 
-	[ClientRpc]
-	private void DrawTraceClientRpc(string oppent)
+	#region Trace
+	public void DrawTraceImmediatley()
 	{
-		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer(oppent));
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.right, _data.FireRange, layer);
+		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
 
-		if (hit.collider != null)
+		RaycastHit2D[] hits = new RaycastHit2D[2];
+		Physics2D.RaycastNonAlloc(transform.position, transform.right, hits, _data.FireRange, layer);
+
+		for (int i = 0; i < hits.Length; ++i)
 		{
-			float tracerTime = Vector2.Distance(transform.position, hit.point) < 5f ? 0f : 0.1f;
-			DrawTrace(transform.position, hit.point, tracerTime);
+			if (hits[i].collider != null)
+			{
+				if (hits[i].collider.attachedRigidbody != null && hits[i].collider.attachedRigidbody.TryGetComponent(out Health health))
+				{
+					print(ClientId);
+					print(health.OwnerClientId);
+
+					if (health.OwnerClientId == ClientId)
+					{
+						print("Owner Hit");
+						continue;
+					}
+				}
+
+				float tracerTime = 0.1f * (Vector2.Distance(transform.position, hits[i].point) / _data.FireRange);
+				DrawTrace(transform.position, hits[i].point, tracerTime);
+				return;
+			}
 		}
-		else
-			DrawTrace(transform.position, transform.right * _data.FireRange, 0.1f);
+
+		DrawTrace(transform.position, transform.position + transform.right * _data.FireRange, 0.1f);
+	}
+
+	[ClientRpc]
+	private void DrawTraceClientRpc(Vector2 start, Vector2 end, float time)
+	{
+		if (IsOwner) return;
+
+		DrawTrace(start, end, time);
 	}
 
 	private void DrawTrace(Vector2 startPoint, Vector2 hitPoint, float time)
@@ -132,4 +178,5 @@ public class Weapon : NetworkBehaviour
 		yield return new WaitForSeconds(trail.time);
 		Destroy(trail.gameObject);
 	}
+	#endregion
 }

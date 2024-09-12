@@ -64,6 +64,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 		catch (AuthenticationException e)
 		{
 			Debug.Log(e);
+			_isAuthenticating = false;
 			return;
 		}
 
@@ -331,6 +332,8 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 
 	private async void DeleteLobby()
 	{
+		if (_hostLobby == null) return;
+
 		try
 		{
 			await LobbyService.Instance.DeleteLobbyAsync(_hostLobby.Id);
@@ -364,6 +367,16 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 			{
 				Debug.Log(e);
 			}
+		}
+	}
+
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+
+		if (_hostLobby != null)
+		{
+			DeleteLobby();
 		}
 	}
 }
