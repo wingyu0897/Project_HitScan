@@ -42,5 +42,10 @@ public class PlayerInput : NetworkBehaviour
 
 		if (Input.GetKeyDown(KeyCode.R))
 			_weaponHolder.Reload();
+
+		if (Input.GetMouseButton(1))
+			_weaponHolder.Aiming();
+		if (Input.GetMouseButtonUp(1))
+			_weaponHolder.CompleteAiming();
 	}
 }

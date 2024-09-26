@@ -1,24 +1,46 @@
-using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GamePlayView : UIView
 {
-	[Header("Play")]
-	[SerializeField] private Button _playBtn;
+    [Header("Weapon Info")]
+    [SerializeField] private TextMeshProUGUI _currentAmmoTxt;
+    [SerializeField] private TextMeshProUGUI _maxAmmoTxt;
+    [SerializeField] private Image _weaponImage;
 
-	public event Action OnPlayButtonClick;
+    [Header("Health Info")]
+    [SerializeField] private TextMeshProUGUI _currentHealthTxt;
+    [SerializeField] private Slider _healthSlider;
 
-	protected override void Awake()
+    [Header("Game Mode")]
+    [SerializeField] private GameObject _teamDeathMatch;
+
+    public void InitWeaponData(int maxAmmo, Sprite weaponSprite)
 	{
-		base.Awake();
-
-		_playBtn.onClick.AddListener(HandlePlayButtonClick);
+        _weaponImage.sprite = weaponSprite;
+        _maxAmmoTxt.text = _currentAmmoTxt.text = maxAmmo.ToString();
 	}
 
-	private void HandlePlayButtonClick()
+    public void SetCurrentAmmo(int currentAmmo)
 	{
-		Hide();
-		OnPlayButtonClick?.Invoke();
+        _currentAmmoTxt.text = currentAmmo.ToString();
+	}
+
+    public void InitHealthData(int maxHealth)
+	{
+        _healthSlider.value = 1.0f;
+        _currentHealthTxt.text = maxHealth.ToString();
+	}
+
+    public void SetHealth(int maxHealth, int currentHealth)
+	{
+        _healthSlider.value =  (float)currentHealth / maxHealth;
+        _currentHealthTxt.text = currentHealth.ToString();
+	}
+
+    public void SetGameModeUI(GAME_MODE gameMode)
+	{
+
 	}
 }

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,6 +24,12 @@ public class Health : NetworkBehaviour
 			HandleHealthChanged(0, MaxHealth);
 		}
 
+
+		if (IsOwner)
+		{
+			UIViewManager.Instance.GetView<GamePlayView>().InitHealthData(MaxHealth);
+		}
+
 		if (!IsHost) return;
 		CurrentHealth.Value = MaxHealth;
 	}
@@ -45,14 +49,24 @@ public class Health : NetworkBehaviour
 				New = newValue,
 				Percentage = (float)newValue / MaxHealth
 			});
+
+		if (IsOwner)
+		{
+			UIViewManager.Instance.GetView<GamePlayView>().SetHealth(MaxHealth, newValue);
+		}
 	}
 
 	public void Damage(int damageValue, ulong dealerId)
 	{
 		Debug.Log($"{damageValue} Damaged by {GameManager.Instance.NetworkServer.GetUserDataByClientID(dealerId).UserName}");
 
-		LastHitClientId = dealerId;
+		SetDealer(dealerId);
 		ModifyHealth(-damageValue);
+	}
+
+	public void SetDealer(ulong dealerId)
+	{
+		LastHitClientId = dealerId;
 	}
 
 	public void RestoreHealth(int healValue)

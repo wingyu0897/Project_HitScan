@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerAgent : NetworkBehaviour
 {
 	public static EventHandler<PlayerEventArgs> OnPlayerDie;
+	public static EventHandler<PlayerEventArgs> OnPlayerDespawn;
 	public class PlayerEventArgs : EventArgs {
 		public PlayerAgent Player;
 	}
@@ -37,16 +38,24 @@ public class PlayerAgent : NetworkBehaviour
 	{
 		base.OnNetworkDespawn();
 
-		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this });
+		OnPlayerDespawn?.Invoke(this, new PlayerEventArgs { Player = this });
 		if (IsOwner)
 		{
+			UIViewManager.Instance.HideView<GamePlayView>();
 			CameraManager.Instance.SetCamera(CAMERA_TYPE.Map);
 		}
 	}
 
 	private void HandleOnDie(object sender, EventArgs e)
 	{
+		Kill();
+	}
+
+	public void Kill()
+	{
 		Destroy(gameObject);
+
+		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this });
 	}
 
 	//[ClientRpc]

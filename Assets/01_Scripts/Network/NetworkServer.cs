@@ -11,10 +11,17 @@ public class UserData
 
 public class NetworkServer : IDisposable
 {
+	public delegate void UserChanged(ulong clientId, UserData userData);
+
+	public event UserChanged OnUserJoin;
+	public event UserChanged OnUserLeft;
+
 	private NetworkManager _networkManager;
 	private NetworkObject _playerPrefab;
 
 	private Dictionary<ulong, UserData> _clientIdToUserDataDictionary = new Dictionary<ulong, UserData>();
+
+	private List<PlayerAgent> _spawnedPlayerList;
 
 	public NetworkServer(NetworkObject playerPrefab)
 	{
@@ -23,6 +30,8 @@ public class NetworkServer : IDisposable
 		_networkManager = NetworkManager.Singleton;
 		_networkManager.ConnectionApprovalCallback += HandleConnectionApprovalCallback;
 		_networkManager.OnServerStarted += HandleServerStarted;
+
+		_spawnedPlayerList = new List<PlayerAgent>();
 	}
 
 	private void HandleConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest req, NetworkManager.ConnectionApprovalResponse res)
@@ -45,19 +54,39 @@ public class NetworkServer : IDisposable
 	private void HandleClientConnect(ulong clientId)
 	{
 		GameManager.Instance.AddUser(clientId);
+
+		if (_clientIdToUserDataDictionary.TryGetValue(clientId, out UserData data))
+		{
+			OnUserJoin?.Invoke(clientId, data);
+		}
 	}
 
 	private void HandleClientDisconnect(ulong clientId)
 	{
 		GameManager.Instance.RemoveUser(clientId);
+
+		if (_clientIdToUserDataDictionary.TryGetValue(clientId, out UserData data))
+		{
+			OnUserLeft?.Invoke(clientId, data);
+			_clientIdToUserDataDictionary.Remove(clientId);
+		}
 	}
 
 	public void RespawnPlayer(ulong clientId, Vector3 pos = default(Vector3))
 	{
 		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
 
-		NetworkObject instance = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
-		instance.SpawnAsPlayerObject(clientId);
+		NetworkObject player = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
+		player.SpawnAsPlayerObject(clientId);
+		_spawnedPlayerList.Add(player.GetComponent<PlayerAgent>());
+	}
+
+	public void KillAllPlayer()
+	{
+		foreach (PlayerAgent player in _spawnedPlayerList)
+		{
+			player.Kill();
+		}
 	}
 
 	public UserData GetUserDataByClientID(ulong clientID)
