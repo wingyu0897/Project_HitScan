@@ -54,7 +54,7 @@ public class Movement : NetworkBehaviour
 
 	private void CheckGrounded()
 	{
-		_isGrounded = Physics2D.OverlapBox(transform.position - new Vector3(0, 0.5f), new Vector2(0.9f, 0.02f), 0, 1 << LayerMask.NameToLayer("Ground"));
+		_isGrounded = Physics2D.OverlapBox(transform.position - new Vector3(0, 0.5f), new Vector2(0.8f, 0.02f), 0, 1 << LayerMask.NameToLayer("Ground"));
 
 		if (!_isGrounded)
 			_coyoteTimer = Mathf.Clamp(_coyoteTimer - Time.deltaTime, 0, _coyoteTime);
