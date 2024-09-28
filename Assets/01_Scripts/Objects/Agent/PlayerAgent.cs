@@ -1,4 +1,3 @@
-using Cinemachine;
 using System;
 using Unity.Netcode;
 using UnityEngine;
@@ -29,6 +28,9 @@ public class PlayerAgent : NetworkBehaviour
 
 		if (IsOwner)
 		{
+			UIViewManager.Instance.HideView<GameReadyView>();
+			UIViewManager.Instance.ShowView<GamePlayView>();
+
 			CameraManager.Instance.SetCameraTarget(transform);
 			CameraManager.Instance.SetCamera(CAMERA_TYPE.Player);
 		}
@@ -43,6 +45,7 @@ public class PlayerAgent : NetworkBehaviour
 		{
 			UIViewManager.Instance.HideView<GamePlayView>();
 			CameraManager.Instance.SetCamera(CAMERA_TYPE.Map);
+			CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 		}
 	}
 

@@ -36,6 +36,7 @@ public class NetworkServer : IDisposable
 
 	private void HandleConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest req, NetworkManager.ConnectionApprovalResponse res)
 	{
+		// 접속한 클라이언트의 정보를 가져온다
 		string json = Encoding.UTF8.GetString(req.Payload);
 		UserData userData = JsonUtility.FromJson<UserData>(json);
 
@@ -72,8 +73,14 @@ public class NetworkServer : IDisposable
 		}
 	}
 
+	/// <summary>
+	/// 클라이언트 Id를 바탕으로 플레이어 오브젝트를 생성한다
+	/// </summary>
+	/// <param name="clientId">생성할 클라이언트의 Id</param>
+	/// <param name="pos">생성할 위치</param>
 	public void RespawnPlayer(ulong clientId, Vector3 pos = default(Vector3))
 	{
+		// 이미 생성된 플레이어 오브젝트가 있다면 생성하지 않음
 		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
 
 		NetworkObject player = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
@@ -81,14 +88,35 @@ public class NetworkServer : IDisposable
 		_spawnedPlayerList.Add(player.GetComponent<PlayerAgent>());
 	}
 
+	/// <summary>
+	/// 만약 플레이어가 죽었다면 스폰된 플레이어 리스트에서 제거한다
+	/// </summary>
+	/// <param name="clientId">제거할 클라이언트의 Id</param>
+	public void PlayerDespawned(ulong clientId)
+	{
+		PlayerAgent player = _spawnedPlayerList.Find(x => x.OwnerClientId == clientId);
+
+		if (player != null)
+			_spawnedPlayerList.Remove(player);
+	}
+
+	/// <summary>
+	/// 스폰되어 있는 모든 플레이어 죽이기. 게임 종료 등에 사용
+	/// </summary>
 	public void KillAllPlayer()
 	{
 		foreach (PlayerAgent player in _spawnedPlayerList)
 		{
-			player.Kill();
+			player?.Health.SetDealer(256);
+			player?.Kill();
 		}
+
+		_spawnedPlayerList.Clear();
 	}
 
+	/// <summary>
+	/// 클라이언트 Id를 통해 클라이언트의 정보를 가져온다
+	/// </summary>
 	public UserData GetUserDataByClientID(ulong clientID)
 	{
 		if (_clientIdToUserDataDictionary.TryGetValue(clientID, out UserData userData))

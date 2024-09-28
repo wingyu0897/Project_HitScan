@@ -49,16 +49,19 @@ public class Movement : NetworkBehaviour
 		if (_isGrounded || _coyoteTimer > 0f)
 		{
 			_rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce);
+			_coyoteTimer = 0;
 		}
 	}
 
 	private void CheckGrounded()
 	{
+		bool prevIsGrounded = _isGrounded;
 		_isGrounded = Physics2D.OverlapBox(transform.position - new Vector3(0, 0.5f), new Vector2(0.8f, 0.02f), 0, 1 << LayerMask.NameToLayer("Ground"));
+
+		if (prevIsGrounded && !_isGrounded)
+			_coyoteTimer = _coyoteTime;
 
 		if (!_isGrounded)
 			_coyoteTimer = Mathf.Clamp(_coyoteTimer - Time.deltaTime, 0, _coyoteTime);
-		else
-			_coyoteTimer = _coyoteTime;
 	}
 }

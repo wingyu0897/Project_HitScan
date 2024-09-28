@@ -107,6 +107,8 @@ public class GameManager : MonoSingleton<GameManager>
 
 	public TEAM_TYPE GetTeam(ulong clientId)
 	{
+		if (!_clientId2Team.ContainsKey(clientId))
+			return default(TEAM_TYPE);
 		return _clientId2Team[clientId];
 	}
 

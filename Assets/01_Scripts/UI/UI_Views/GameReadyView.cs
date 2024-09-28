@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,10 @@ public class GameReadyView : UIView
 
 	public event Action OnPlayButtonClick;
 
+	[Header("Intermission")]
+	[SerializeField] private GameObject _intermissionText;
+	[SerializeField] private TextMeshProUGUI _intermissionTimeText;
+
 	protected override void Awake()
 	{
 		base.Awake();
@@ -18,8 +23,13 @@ public class GameReadyView : UIView
 
 	private void HandlePlayButtonClick()
 	{
-		Hide();
 		OnPlayButtonClick?.Invoke();
-		UIViewManager.Instance.ShowView<GamePlayView>();
+	}
+
+	public void SetIntermission(bool active, int intermissionTime = 0)
+	{
+		_intermissionText.SetActive(active);
+		_intermissionTimeText.gameObject.SetActive(active);
+		_intermissionTimeText.text = intermissionTime.ToString();
 	}
 }

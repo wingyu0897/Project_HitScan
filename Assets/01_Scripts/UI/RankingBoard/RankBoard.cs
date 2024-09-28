@@ -111,7 +111,7 @@ public class RankBoard : NetworkBehaviour
 		{
 			_rankUIList[i].UpdateValue(i + 1, _rankUIList[i].Kills);
 
-			// 부모에서 떼었다가 다시 붙혀서 랭크 순서대로 정렬한다.
+			// 랭크 순서대로 정렬
 			Transform uiParent = _rankUIList[i].Team == TEAM_TYPE.Red ? _redRankListParent : _blueRankListParent;
 			_rankUIList[i].transform.SetParent(null);
 			_rankUIList[i].transform.SetParent(uiParent);
@@ -162,6 +162,22 @@ public class RankBoard : NetworkBehaviour
 				};
 				break;
 			}
+		}
+	}
+
+	public void ResetRankboard()
+	{
+		for (int i = 0; i < _rankList.Count; ++i)
+		{
+			var oldItem = _rankList[i];
+
+			_rankList[i] = new RankBoardEntityState
+			{
+				ClientID = oldItem.ClientID,
+				UserName = oldItem.UserName,
+				Kills = 0,
+				Team = GameManager.Instance.GetTeam(oldItem.ClientID),
+			};
 		}
 	}
 }
