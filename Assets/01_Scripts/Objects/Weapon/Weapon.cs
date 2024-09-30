@@ -14,8 +14,7 @@ public class Weapon : NetworkBehaviour
 	private bool _isReloading = false;
 	private float _lastFireTime;
 
-    public ulong ClientId;
-	public Collider2D OwnerCollider;
+    [HideInInspector] public ulong ClientId;
 
 	public event Action OnReloaded;
 

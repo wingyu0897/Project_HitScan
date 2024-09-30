@@ -22,6 +22,9 @@ public class InGameManager : NetworkBehaviour
     [SerializeField] private Transform _redTeamSpawn;
     [SerializeField] private Transform _blueTeamSpawn;
 
+	// players
+	private Players _players;
+
 	// variables
 	private NetworkVariable<int> _redScore = new NetworkVariable<int>();
 	private NetworkVariable<int> _blueScore = new NetworkVariable<int>();
@@ -57,6 +60,8 @@ public class InGameManager : NetworkBehaviour
 		PlayerAgent.OnPlayerDie += HandlePlayerDie;
 		PlayerAgent.OnPlayerDespawn += HandlePlayerDespawn;
 		NetworkManager.Singleton.OnClientStarted += HandleClientConnected;
+
+		_players = new Players();
 	}
 
 	private void Update()
@@ -85,7 +90,7 @@ public class InGameManager : NetworkBehaviour
 	public void SelectGameMode()
 	{
 		_gameMode = GAME_MODE.TeamDeathMatch;
-		_gameDurationSec = 10;
+		_gameDurationSec = 30;
 	}
 
 	public void SelectMap()
@@ -96,7 +101,7 @@ public class InGameManager : NetworkBehaviour
 	public void StartGame()
 	{
 		// Player가 남아있지 않도록 모두 제거
-		GameManager.Instance.NetworkServer.KillAllPlayer();
+		GameManager.Instance.NetworkServer.KillAllPlayer(true);
 
 		_gameStartTime = (int)Time.unscaledTime;
 
@@ -156,7 +161,7 @@ public class InGameManager : NetworkBehaviour
 	{
 		_isSpawnable = false;
 		_isGameRunning = false;
-		GameManager.Instance.NetworkServer.KillAllPlayer();
+		GameManager.Instance.NetworkServer.KillAllPlayer(true);
 
 		StopAllCoroutines();
 		StartCoroutine(IntermissionCo());
@@ -237,11 +242,6 @@ public class InGameManager : NetworkBehaviour
 
 	private void HandlePlayerDespawn(object sender, PlayerAgent.PlayerEventArgs e)
 	{
-		if (e.Player.IsOwner)
-		{
-			UIViewManager.Instance.ShowView<GameReadyView>();
-		}
-
 		if (IsHost)
 		{
 			GameManager.Instance.NetworkServer.PlayerDespawned(e.Player.OwnerClientId);

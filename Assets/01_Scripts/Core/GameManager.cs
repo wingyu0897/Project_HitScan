@@ -40,7 +40,6 @@ public class GameManager : MonoSingleton<GameManager>
 		SceneManager.LoadScene("Game");
 
 		NetworkServer = new NetworkServer(_playerPrefab);
-
 		string relayCode = await RelayManager.Instance.CreateRelay(userData);
 
 		return relayCode;
@@ -108,7 +107,11 @@ public class GameManager : MonoSingleton<GameManager>
 	public TEAM_TYPE GetTeam(ulong clientId)
 	{
 		if (!_clientId2Team.ContainsKey(clientId))
+		{
+			Debug.LogWarning("Is not Host.");
 			return default(TEAM_TYPE);
+		}
+
 		return _clientId2Team[clientId];
 	}
 

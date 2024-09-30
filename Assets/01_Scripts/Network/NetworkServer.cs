@@ -103,12 +103,16 @@ public class NetworkServer : IDisposable
 	/// <summary>
 	/// 스폰되어 있는 모든 플레이어 죽이기. 게임 종료 등에 사용
 	/// </summary>
-	public void KillAllPlayer()
+	public void KillAllPlayer(bool immediately = false)
 	{
 		foreach (PlayerAgent player in _spawnedPlayerList)
 		{
 			player?.Health.SetDealer(256);
-			player?.Kill();
+
+			if (immediately)
+				player?.KillImmediately();
+			else
+				player?.Kill();
 		}
 
 		_spawnedPlayerList.Clear();

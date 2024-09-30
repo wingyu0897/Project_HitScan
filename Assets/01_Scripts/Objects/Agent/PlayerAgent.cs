@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerAgent : NetworkBehaviour
 {
 	public static EventHandler<PlayerEventArgs> OnPlayerDie;
+	public static EventHandler<PlayerEventArgs> OnPlayerSpawn;
 	public static EventHandler<PlayerEventArgs> OnPlayerDespawn;
 	public class PlayerEventArgs : EventArgs {
 		public PlayerAgent Player;
+		public ulong ClientID;
 	}
 
 	[SerializeField] private SpriteRenderer _spriteRenderer;
@@ -24,6 +26,9 @@ public class PlayerAgent : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
+		Debug.Log("OnPlayerSpawn 실행됨");
+		OnPlayerSpawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+
 		SetColorServerRpc();
 
 		if (IsOwner)
@@ -32,7 +37,7 @@ public class PlayerAgent : NetworkBehaviour
 			UIViewManager.Instance.ShowView<GamePlayView>();
 
 			CameraManager.Instance.SetCameraTarget(transform);
-			CameraManager.Instance.SetCamera(CAMERA_TYPE.Player);
+			CameraManager.Instance.SetCameraType(CAMERA_TYPE.Player);
 		}
 	}
 
@@ -40,12 +45,10 @@ public class PlayerAgent : NetworkBehaviour
 	{
 		base.OnNetworkDespawn();
 
-		OnPlayerDespawn?.Invoke(this, new PlayerEventArgs { Player = this });
+		OnPlayerDespawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 		if (IsOwner)
 		{
 			UIViewManager.Instance.HideView<GamePlayView>();
-			CameraManager.Instance.SetCamera(CAMERA_TYPE.Map);
-			CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 		}
 	}
 
@@ -58,7 +61,29 @@ public class PlayerAgent : NetworkBehaviour
 	{
 		Destroy(gameObject);
 
-		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this });
+		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+
+		// 데스캠을 보여준 후 메뉴로 되돌아 가기
+		CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+		CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () =>
+		{
+			UIViewManager.Instance.ShowView<GameReadyView>();
+			CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+		});
+	}
+
+	/// <summary>
+	/// Kill과 달리 데스캠 없이 준비 화면으로 돌아간다.
+	/// </summary>
+	public void KillImmediately()
+	{
+		Destroy(gameObject);
+
+		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+
+		CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+		UIViewManager.Instance.ShowView<GameReadyView>();
+		CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 	}
 
 	//[ClientRpc]

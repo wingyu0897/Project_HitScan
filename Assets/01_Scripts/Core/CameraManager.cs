@@ -1,5 +1,7 @@
 using Cinemachine;
+using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public enum CAMERA_TYPE
@@ -18,6 +20,7 @@ public class CameraManager : MonoSingleton<CameraManager>
 	private bool _isAiming = false;
 
 	private Coroutine _orthoSizeCo = null;
+	private Coroutine _deathCamCo = null;
 
 	public void SetCameraTarget(Transform target)
 	{
@@ -26,7 +29,7 @@ public class CameraManager : MonoSingleton<CameraManager>
 		_originOrthoSize = _playerCam.m_Lens.OrthographicSize;
 	}
 
-    public void SetCamera(CAMERA_TYPE type)
+    public void SetCameraType(CAMERA_TYPE type)
 	{
 		switch (type)
 		{
@@ -39,6 +42,26 @@ public class CameraManager : MonoSingleton<CameraManager>
 				_playerCam.Priority = 0;
 				break;
 		}
+	}
+
+	/// <summary>
+	/// 잠시동안 카메라 위치를 자신을 죽인 적으로 변경한다
+	/// </summary>
+	public void DeathCam(ulong attackerId, float duration = 1.0f, Action callback = null)
+	{
+		SetCameraTarget(Players.GetPlayerObjectByClientID(attackerId)?.transform);
+
+		if (_deathCamCo != null)
+			StopCoroutine(_deathCamCo);
+		_deathCamCo = StartCoroutine(DeathCamCo(duration, callback));
+	}
+
+	IEnumerator DeathCamCo(float duration, Action callback)
+	{
+		yield return new WaitForSeconds(duration);
+
+		callback?.Invoke();
+		_deathCamCo = null;
 	}
 
 	public void AimCamera(Vector2 offset, float orthoSizeRatio = 1f, float lerpTime = 0.3f)
