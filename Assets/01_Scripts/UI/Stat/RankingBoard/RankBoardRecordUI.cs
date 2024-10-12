@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -9,7 +7,7 @@ public class RankBoardRecordUI : MonoBehaviour
     public string UserName;
     public int Rank;
     public int Kills;
-    public TEAM_TYPE Team;
+    public Define.TEAM_TYPE Team;
 
     [SerializeField] private TextMeshProUGUI _userNameTxt;
     [SerializeField] private TextMeshProUGUI _rankTxt;

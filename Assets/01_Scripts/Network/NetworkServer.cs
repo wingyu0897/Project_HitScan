@@ -84,7 +84,7 @@ public class NetworkServer : IDisposable
 		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
 
 		NetworkObject player = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
-		player.SpawnAsPlayerObject(clientId);
+		player.SpawnAsPlayerObject(clientId, true);
 		_spawnedPlayerList.Add(player.GetComponent<PlayerAgent>());
 	}
 

@@ -97,9 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dd7c51121d38c24f8a90f848262e931, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 4f0f42587f5a900458a468094a482fe3, type: 2}
+  _data: {fileID: 11400000, guid: 2949a3b1f4eb78f438b63bfa084d0845, type: 2}
   ClientId: 0
-  OwnerCollider: {fileID: 0}
 --- !u!1 &3624251797520595333
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,6 +389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9540c174fbc332748b162e9edfd9dc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UserName: 
   _spriteRenderer: {fileID: 6767591441980386091}
 --- !u!114 &5601040846138925514
 MonoBehaviour:

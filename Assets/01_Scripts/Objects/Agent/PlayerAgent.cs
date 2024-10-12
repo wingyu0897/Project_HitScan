@@ -4,22 +4,24 @@ using UnityEngine;
 
 public class PlayerAgent : NetworkBehaviour
 {
+	public class PlayerEventArgs : EventArgs {
+		public PlayerAgent Player;
+		public ulong ClientID; }
 	public static EventHandler<PlayerEventArgs> OnPlayerDie;
 	public static EventHandler<PlayerEventArgs> OnPlayerSpawn;
 	public static EventHandler<PlayerEventArgs> OnPlayerDespawn;
-	public class PlayerEventArgs : EventArgs {
-		public PlayerAgent Player;
-		public ulong ClientID;
-	}
+
+
+	public string UserName;
 
 	[SerializeField] private SpriteRenderer _spriteRenderer;
 	private Health _health;
 	public Health Health => _health;
 
+
 	private void Awake()
 	{
 		_health = GetComponent<Health>();
-		_health.OnDie += HandleOnDie;
 	}
 
 	public override void OnNetworkSpawn()
@@ -30,6 +32,9 @@ public class PlayerAgent : NetworkBehaviour
 		OnPlayerSpawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 
 		SetColorServerRpc();
+
+		if (IsServer)
+			_health.OnDie += HandleOnDie;
 
 		if (IsOwner)
 		{
@@ -59,17 +64,47 @@ public class PlayerAgent : NetworkBehaviour
 
 	public void Kill()
 	{
+		KillClientRpc();
+		//Destroy(gameObject);
+
+		//OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+ 
+		//if (IsOwner)
+		//{
+		//	// 데스캠을 보여준 후 메뉴로 되돌아 가기
+		//	CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+		//	CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () => {
+		//		UIViewManager.Instance.ShowView<GameReadyView>();
+		//		CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+		//	});
+		//}	
+	}
+
+	[ClientRpc(RequireOwnership = false)]
+	private void KillClientRpc(bool immediately = false)
+	{
 		Destroy(gameObject);
 
 		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 
-		// 데스캠을 보여준 후 메뉴로 되돌아 가기
-		CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
-		CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () =>
+		if (IsOwner)
 		{
-			UIViewManager.Instance.ShowView<GameReadyView>();
-			CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
-		});
+			if (immediately)
+			{
+				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+				UIViewManager.Instance.ShowView<GameReadyView>();
+				CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+			}
+			else
+			{
+				// 데스캠을 보여준 후 메뉴로 되돌아 가기
+				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+				CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () => {
+					UIViewManager.Instance.ShowView<GameReadyView>();
+					CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+				});
+			}
+		}
 	}
 
 	/// <summary>
@@ -77,13 +112,18 @@ public class PlayerAgent : NetworkBehaviour
 	/// </summary>
 	public void KillImmediately()
 	{
-		Destroy(gameObject);
+		//Destroy(gameObject);
 
-		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+		//OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 
-		CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
-		UIViewManager.Instance.ShowView<GameReadyView>();
-		CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+		//if (IsOwner)
+		//{
+		//	CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
+		//	UIViewManager.Instance.ShowView<GameReadyView>();
+		//	CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
+		//}
+
+		KillClientRpc(true);
 	}
 
 	//[ClientRpc]

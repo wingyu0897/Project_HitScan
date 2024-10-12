@@ -7,7 +7,7 @@ public struct RankBoardEntityState : INetworkSerializable, IEquatable<RankBoardE
 	public ulong ClientID;
 	public FixedString32Bytes UserName;
 	public int Kills;
-	public TEAM_TYPE Team;
+	public Define.TEAM_TYPE Team;
 
 	public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
 	{

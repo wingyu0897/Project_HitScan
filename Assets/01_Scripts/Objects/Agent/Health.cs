@@ -82,7 +82,13 @@ public class Health : NetworkBehaviour
 		CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value + value, 0, MaxHealth);
 		if (CurrentHealth.Value == 0)
 		{
-			OnDie?.Invoke(this, EventArgs.Empty);
+			OnDieEventClientRpc();
 		}
+	}
+
+	[ClientRpc]
+	private void OnDieEventClientRpc()
+	{
+		OnDie?.Invoke(this, EventArgs.Empty);
 	}
 }

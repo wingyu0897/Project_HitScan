@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Define;
 
 public enum GAME_MODE
 {
@@ -50,8 +51,17 @@ public class InGameManager : NetworkBehaviour
 
 		if (IsHost)
 		{
+			NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
 			StartGame();
 		}
+	}
+
+	public override void OnNetworkDespawn()
+	{
+		base.OnNetworkDespawn();
+
+		if (IsHost)
+			NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
 	}
 
 	private void Start()
@@ -59,7 +69,6 @@ public class InGameManager : NetworkBehaviour
 		UIViewManager.Instance.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
 		PlayerAgent.OnPlayerDie += HandlePlayerDie;
 		PlayerAgent.OnPlayerDespawn += HandlePlayerDespawn;
-		NetworkManager.Singleton.OnClientStarted += HandleClientConnected;
 
 		_players = new Players();
 	}
@@ -78,8 +87,6 @@ public class InGameManager : NetworkBehaviour
 
 		PlayerAgent.OnPlayerDie -= HandlePlayerDie;
 		PlayerAgent.OnPlayerDespawn -= HandlePlayerDespawn;
-		if (NetworkManager.Singleton != null)
-			NetworkManager.Singleton.OnClientStarted -= HandleClientConnected;
 	}
 
 	#region Game
@@ -135,6 +142,7 @@ public class InGameManager : NetworkBehaviour
 	[ClientRpc(RequireOwnership = false)]
 	private void InitializeGameClientRpc(GAME_MODE gameMode)
 	{
+		Debug.Log("InitializeGameClientRpc");
 		UIViewManager.Instance.GetView<GameReadyView>().SetIntermission(false, 0);
 		UIViewManager.Instance.GetView<GamePlayView>().SetGameModeUI(this, gameMode);
 	}
@@ -215,6 +223,8 @@ public class InGameManager : NetworkBehaviour
 	{
 		if (IsHost)
 		{
+			if (!_isGameRunning) return;
+
 			Debug.Log($"ClientId: {e.Player.Health.LastHitClientId}, UserName: {GameManager.Instance.NetworkServer.GetUserDataByClientID(e.Player.Health.LastHitClientId)?.UserName ?? "KillZone"}, Kill: 1");
 
 			if (GameManager.Instance.GetTeam(e.Player.OwnerClientId) == TEAM_TYPE.Red)
@@ -248,15 +258,12 @@ public class InGameManager : NetworkBehaviour
 		}
 	}
 
-	private void HandleClientConnected()
+	private void HandleClientConnected(ulong clientId)
 	{
-		if (IsHost)
-		{
-			InitializeGameClientRpc(_gameMode);
-			UpdateScoreClientRpc();
-		}
+		InitializeGameClientRpc(_gameMode);
+		UpdateScoreClientRpc();
 
-		Debug.Log("Connected");
+		Debug.Log("New player Connected");
 	}
 	#endregion
 }

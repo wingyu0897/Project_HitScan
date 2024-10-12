@@ -4,12 +4,7 @@ using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-public enum TEAM_TYPE
-{
-	Red = 0,
-	Blue,
-}
+using Define;
 
 public class GameManager : MonoSingleton<GameManager>
 {
@@ -108,7 +103,7 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		if (!_clientId2Team.ContainsKey(clientId))
 		{
-			Debug.LogWarning("Is not Host.");
+			Debug.LogWarning("Is not Host or not contains key.");
 			return default(TEAM_TYPE);
 		}
 
