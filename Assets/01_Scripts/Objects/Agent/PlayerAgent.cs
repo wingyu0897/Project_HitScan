@@ -64,7 +64,8 @@ public class PlayerAgent : NetworkBehaviour
 
 	public void Kill()
 	{
-		KillClientRpc();
+		string killerName = GameManager.Instance.NetworkServer.GetUserDataByClientID(Health.LastHitClientId).UserName;
+		KillClientRpc(killerName);
 		//Destroy(gameObject);
 
 		//OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
@@ -81,25 +82,28 @@ public class PlayerAgent : NetworkBehaviour
 	}
 
 	[ClientRpc(RequireOwnership = false)]
-	private void KillClientRpc(bool immediately = false)
+	private void KillClientRpc(string killerName, bool immediately = false)
 	{
 		Destroy(gameObject);
 
 		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
+		UIViewManager.Instance?.GetView<DeathView>().SetKillerText(killerName);
 
 		if (IsOwner)
 		{
-			if (immediately)
+			if (immediately) // 데스캠 없이 즉시 메뉴로 되돌아 가기
 			{
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 				UIViewManager.Instance.ShowView<GameReadyView>();
 				CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 			}
-			else
+			else // 데스캠을 보여준 후 메뉴로 되돌아 가기
 			{
-				// 데스캠을 보여준 후 메뉴로 되돌아 가기
+				UIViewManager.Instance.ShowView<DeathView>();
+
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 				CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () => {
+					UIViewManager.Instance.HideView<DeathView>();
 					UIViewManager.Instance.ShowView<GameReadyView>();
 					CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 				});
@@ -123,7 +127,8 @@ public class PlayerAgent : NetworkBehaviour
 		//	CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 		//}
 
-		KillClientRpc(true);
+		string killerName = GameManager.Instance.NetworkServer.GetUserDataByClientID(Health.LastHitClientId).UserName;
+		KillClientRpc(killerName, true);
 	}
 
 	//[ClientRpc]

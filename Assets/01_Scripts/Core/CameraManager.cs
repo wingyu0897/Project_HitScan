@@ -47,17 +47,22 @@ public class CameraManager : MonoSingleton<CameraManager>
 	/// <summary>
 	/// 잠시동안 카메라 위치를 자신을 죽인 적으로 변경한다
 	/// </summary>
-	public void DeathCam(ulong attackerId, float duration = 1.0f, Action callback = null)
+	public void DeathCam(ulong attackId, float duration = 1.0f, Action callback = null)
 	{
-		SetCameraTarget(Players.GetPlayerObjectByClientID(attackerId)?.transform);
-
 		if (_deathCamCo != null)
 			StopCoroutine(_deathCamCo);
-		_deathCamCo = StartCoroutine(DeathCamCo(duration, callback));
+		_deathCamCo = StartCoroutine(DeathCamCo(Players.GetPlayerObjectByClientID(attackId)?.transform, duration, callback));
 	}
 
-	IEnumerator DeathCamCo(float duration, Action callback)
+	IEnumerator DeathCamCo(Transform target, float duration, Action callback)
 	{
+		if (target != null)
+		{
+			yield return new WaitForSeconds(1f);
+
+			SetCameraTarget(target);
+		}
+
 		yield return new WaitForSeconds(duration);
 
 		callback?.Invoke();

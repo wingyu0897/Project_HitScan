@@ -32,6 +32,8 @@ public class NetworkServer : IDisposable
 		_networkManager.OnServerStarted += HandleServerStarted;
 
 		_spawnedPlayerList = new List<PlayerAgent>();
+
+		_clientIdToUserDataDictionary.Add(256, new UserData() { UserName = "Kill Zone" });
 	}
 
 	private void HandleConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest req, NetworkManager.ConnectionApprovalResponse res)
