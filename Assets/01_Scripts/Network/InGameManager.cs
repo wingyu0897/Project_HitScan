@@ -136,7 +136,7 @@ public class InGameManager : NetworkBehaviour
 		}
 
 		InitializeGameClientRpc(_gameMode);
-		UpdateScoreClientRpc();
+		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value);
 	}
 
 	[ClientRpc(RequireOwnership = false)]
@@ -241,13 +241,13 @@ public class InGameManager : NetworkBehaviour
 	/// </summary>
 	private void HandleScoreChanged(int previousValue, int newValue)
 	{
-		UpdateScoreClientRpc();
+		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value);
 	}
 
 	[ClientRpc(RequireOwnership = false)]
-	private void UpdateScoreClientRpc()
+	private void UpdateScoreClientRpc(int redScore, int blueScore)
 	{
-		OnScoreChanged?.Invoke(_redScore.Value, _blueScore.Value);
+		OnScoreChanged?.Invoke(redScore, blueScore);
 	}
 
 	private void HandlePlayerDespawn(object sender, PlayerAgent.PlayerEventArgs e)
@@ -261,7 +261,7 @@ public class InGameManager : NetworkBehaviour
 	private void HandleClientConnected(ulong clientId)
 	{
 		InitializeGameClientRpc(_gameMode);
-		UpdateScoreClientRpc();
+		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value);
 
 		Debug.Log("New player Connected");
 	}

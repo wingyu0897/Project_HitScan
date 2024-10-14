@@ -49,7 +49,6 @@ public class CameraManager : MonoSingleton<CameraManager>
 	/// </summary>
 	public void DeathCam(ulong attackerId, float duration = 1.0f, Action callback = null)
 	{
-		Debug.Log("DeathCam");
 		SetCameraTarget(Players.GetPlayerObjectByClientID(attackerId)?.transform);
 
 		if (_deathCamCo != null)

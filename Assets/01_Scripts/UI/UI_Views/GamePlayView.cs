@@ -85,6 +85,7 @@ public class GamePlayView : UIView
 
 	private void HandleOnScoreChanged(int redScore, int blueScore)
 	{
+        Debug.Log($"Score Changed. Red: {redScore} Blue: {blueScore}");
         _gameModeUI[_currentGameMode].SetScore(redScore.ToString(), blueScore.ToString());
 	}
     #endregion

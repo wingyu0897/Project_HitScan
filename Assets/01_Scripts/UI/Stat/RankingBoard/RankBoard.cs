@@ -99,23 +99,32 @@ public class RankBoard : NetworkBehaviour
 		}
 	}
 
+	// RankList의 값이 변경될 때 UI에 반영하는 함수
 	private void AdjustValueToUIList(RankBoardEntityState value)
 	{
-		RankBoardRecordUI ui = _rankUIList.Find(x => x.ClientId == value.ClientID);
+		RankBoardRecordUI ui = _rankUIList.Find(x => x.ClientId == value.ClientID); // 클라이언트 Id를 통해 UI를 찾아낸다
+
 		if (ui != null)
 		{
-			ui.UpdateValue(1, value.Kills);
-		}
+			int rank = 1; // _rankUIList는 레드, 블루 팀이 모두 섞여있기 때문에 랭크를 따로 계산해야 함
+			Transform uiParent = ui.Team == TEAM_TYPE.Red ? _redRankListParent : _blueRankListParent;
 
-		_rankUIList.Sort((a, b) => b.Kills.CompareTo(a.Kills));
-		for (int i = 0; i < _rankUIList.Count; ++i)
-		{
-			_rankUIList[i].UpdateValue(i + 1, _rankUIList[i].Kills);
+			ui.UpdateValue(1, value.Kills); // UI가 존재한다면 값을 적용한다
+			_rankUIList.Sort((a, b) => b.Kills.CompareTo(a.Kills));
 
-			// 랭크 순서대로 정렬
-			Transform uiParent = _rankUIList[i].Team == TEAM_TYPE.Red ? _redRankListParent : _blueRankListParent;
-			_rankUIList[i].transform.SetParent(null);
-			_rankUIList[i].transform.SetParent(uiParent);
+			// 랭크보드의 값이 변경되었기 때문에 변경된 값을 바탕으로 다시 정렬한다
+			for (int i = 0; i < _rankUIList.Count; ++i)
+			{
+				if (_rankUIList[i].Team == ui.Team) // 다른 팀은 정렬할 필요가 없으므로 같은 팀만 정렬
+				{
+					_rankUIList[i].UpdateValue(rank, _rankUIList[i].Kills);
+					rank++;
+
+					// 랭크 순서대로 정렬
+					_rankUIList[i].transform.SetParent(null);
+					_rankUIList[i].transform.SetParent(uiParent);
+				}
+			}
 		}
 	}
 
@@ -129,7 +138,7 @@ public class RankBoard : NetworkBehaviour
 			ui.Team = value.Team;
 			ui.SetOwner(value.ClientID);
 			ui.SetName(value.UserName.ToString());
-			ui.UpdateValue(1, value.Kills);
+			ui.UpdateValue(_rankUIList.Count + 1, value.Kills);
 			_rankUIList.Add(ui);
 		}
 	}

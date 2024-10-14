@@ -31,7 +31,6 @@ public class UIViewManager : MonoSingleton<UIViewManager>
 
 	public void ShowView<T>() where T : UIView
 	{
-		Debug.Log($"showView{typeof(T)}");
 		UIView view = _views.Find(view => view is T);
 
 		if (view != null)
