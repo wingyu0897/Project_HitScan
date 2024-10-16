@@ -15,10 +15,8 @@ public class AuthenticationView : UIView
 
 	private WaitForSeconds _wait = new WaitForSeconds(0.5f);
 
-	protected override void Awake()
+	private void Awake()
 	{
-		base.Awake();
-
 		ShowTitle(true);
 
 		_playBtn.onClick.AddListener(StartAuthentication);

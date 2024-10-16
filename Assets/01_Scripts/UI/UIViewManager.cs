@@ -5,7 +5,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class UIViewManager : MonoBehaviour
 {
-	protected Dictionary<Type, UIView> _viewsByType = new Dictionary<Type, UIView>();
+	protected Dictionary<Type, UIView> _views = new Dictionary<Type, UIView>();
 
 	[SerializeField] protected UIView _defaultView;
 
@@ -13,29 +13,33 @@ public class UIViewManager : MonoBehaviour
 	{
 		foreach (UIView view in GetComponentsInChildren<UIView>(true))
 		{
-			_viewsByType.Add(view.GetType(), view);
+			_views.Add(view.GetType(), view);
 		}
 	}
 
 	protected virtual void Start()
 	{
+		foreach (var view in _views) {
+			view.Value.Hide();
+		}
+
 		if (_defaultView != null)
-			ShowView(_defaultView);
+			_defaultView.Show();
 		else
 			Debug.Log("기본 뷰가 존재하지 않음.");
 	}
 
 	public virtual T GetView<T>() where T : UIView
 	{
-		T view = _viewsByType[typeof(T)] as T;
+		T view = _views[typeof(T)] as T;
 		return view;
 	}
 
 	public virtual void ShowView<T>() where T : UIView
 	{
-		if (_viewsByType.ContainsKey(typeof(T)))
+		if (_views.ContainsKey(typeof(T)))
 		{
-			UIView view = _viewsByType[typeof(T)];
+			UIView view = _views[typeof(T)];
 			view.Show();
 		}
 	}
@@ -48,9 +52,9 @@ public class UIViewManager : MonoBehaviour
 
 	public virtual void HideView<T>() where T : UIView
 	{
-		if (_viewsByType.ContainsKey(typeof(T)))
+		if (_views.ContainsKey(typeof(T)))
 		{
-			UIView view = _viewsByType[typeof(T)];
+			UIView view = _views[typeof(T)];
 			view.Hide();
 		}
 	}
@@ -58,6 +62,6 @@ public class UIViewManager : MonoBehaviour
 	public virtual void HideView(UIView view)
 	{
 		if (view != null)
-			view?.Hide();
+			view.Hide();
 	}
 }

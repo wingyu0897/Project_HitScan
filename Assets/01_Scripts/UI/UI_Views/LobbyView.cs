@@ -22,10 +22,8 @@ public class LobbyView : UIView
 			_maxPlayerTxt.text = _maxPlayer.ToString();
 		} }
 
-	protected override void Awake()
+	private void Awake()
 	{
-		base.Awake();
-
 		BindEvents();
 	}
 

@@ -14,10 +14,8 @@ public class GameReadyView : UIView
 	[SerializeField] private GameObject _intermissionText;
 	[SerializeField] private TextMeshProUGUI _intermissionTimeText;
 
-	protected override void Awake()
+	private void Awake()
 	{
-		base.Awake();
-
 		_playBtn.onClick.AddListener(HandlePlayButtonClick);
 	}
 

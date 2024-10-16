@@ -14,10 +14,8 @@ public class JoinedLobbyView : UIView
 	[SerializeField] private Button _startGameBtn;
 	[SerializeField] private Button _leaveLobbyBtn;
 
-	protected override void Awake()
+	private void Awake()
 	{
-		base.Awake();
-
 		LobbyManager.Instance.OnJoinedLobby += OnJoinedLobbyHandler;
 		LobbyManager.Instance.OnJoinedLobbyUpdate += OnJoinedLobbyUpdateHandler;
 		LobbyManager.Instance.OnLeaveLobby += OnLeaveLobbyHandler;

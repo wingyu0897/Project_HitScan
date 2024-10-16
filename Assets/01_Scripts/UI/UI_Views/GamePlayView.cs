@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -22,12 +21,11 @@ public class GamePlayView : UIView
     private Dictionary<GAME_MODE, GameModeUI> _gameModeUI = new();
     private GAME_MODE _currentGameMode;
 
-	protected override void Awake()
+	private void Awake()
 	{
-        base.Awake();
-
 		foreach (GAME_MODE gameMode in System.Enum.GetValues(typeof(GAME_MODE)))
 		{
+            Debug.Log($"GameMode {gameMode}");
             GameModeUI gameModeUI = transform.Find("GameModeUIs").Find(gameMode.ToString()).GetComponent<GameModeUI>();
             _gameModeUI[gameMode] = gameModeUI;
             gameModeUI.gameObject.SetActive(false);
