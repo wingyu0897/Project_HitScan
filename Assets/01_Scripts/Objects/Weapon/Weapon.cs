@@ -83,7 +83,7 @@ public class Weapon : NetworkBehaviour
 
 					if (GameManager.Instance.IsAttackable(ClientId, health.OwnerClientId)) // 아군이 아닌지 확인
 					{
-						health.Damage(_data.Damage, ClientId);
+						health.Damage(_data.Damage, ClientId, hits[i].point);
 					}
 				}
 

@@ -1,9 +1,11 @@
 using System;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerAgent : NetworkBehaviour
 {
+	// Events
 	public class PlayerEventArgs : EventArgs {
 		public PlayerAgent Player;
 		public ulong ClientID; }
@@ -11,13 +13,16 @@ public class PlayerAgent : NetworkBehaviour
 	public static EventHandler<PlayerEventArgs> OnPlayerSpawn;
 	public static EventHandler<PlayerEventArgs> OnPlayerDespawn;
 
+	// User Data
+	public NetworkVariable<FixedString32Bytes> UserName;
 
-	public string UserName;
-
+	// References
 	[SerializeField] private SpriteRenderer _spriteRenderer;
 	private Health _health;
 	public Health Health => _health;
 
+	// Prefabs
+	[SerializeField] private ParticleSystem _deathEffect;
 
 	private void Awake()
 	{
@@ -28,7 +33,6 @@ public class PlayerAgent : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
-		Debug.Log("OnPlayerSpawn 실행됨");
 		OnPlayerSpawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 
 		SetColorServerRpc();
@@ -38,8 +42,8 @@ public class PlayerAgent : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIViewManager.Instance.HideView<GameReadyView>();
-			UIViewManager.Instance.ShowView<GamePlayView>();
+			UIManager.UIViewManager.HideView<GameReadyView>();
+			UIManager.UIViewManager.ShowView<GamePlayView>();
 
 			CameraManager.Instance.SetCameraTarget(transform);
 			CameraManager.Instance.SetCameraType(CAMERA_TYPE.Player);
@@ -53,7 +57,7 @@ public class PlayerAgent : NetworkBehaviour
 		OnPlayerDespawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 		if (IsOwner)
 		{
-			UIViewManager.Instance.HideView<GamePlayView>();
+			UIManager.UIViewManager.HideView<GamePlayView>();
 		}
 	}
 
@@ -87,28 +91,30 @@ public class PlayerAgent : NetworkBehaviour
 		Destroy(gameObject);
 
 		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
-		UIViewManager.Instance?.GetView<DeathView>().SetKillerText(killerName);
+		UIManager.UIViewManager?.GetView<DeathView>().SetKillerText(killerName);
 
 		if (IsOwner)
 		{
 			if (immediately) // 데스캠 없이 즉시 메뉴로 되돌아 가기
 			{
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
-				UIViewManager.Instance.ShowView<GameReadyView>();
+				UIManager.UIViewManager.ShowView<GameReadyView>();
 				CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 			}
 			else // 데스캠을 보여준 후 메뉴로 되돌아 가기
 			{
-				UIViewManager.Instance.ShowView<DeathView>();
+				UIManager.UIViewManager.ShowView<DeathView>();
 
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 				CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () => {
-					UIViewManager.Instance.HideView<DeathView>();
-					UIViewManager.Instance.ShowView<GameReadyView>();
+					UIManager.UIViewManager.HideView<DeathView>();
+					UIManager.UIViewManager.ShowView<GameReadyView>();
 					CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 				});
 			}
 		}
+
+		DeathEffect();
 	}
 
 	/// <summary>
@@ -157,5 +163,17 @@ public class PlayerAgent : NetworkBehaviour
 	private void ApplyColorClientRpc(Color color)
 	{
 		_spriteRenderer.color = color;
+	}
+
+	private void DeathEffect()
+	{
+		Vector2 hitDirection = (Vector2)transform.position - Health.HitDirection;
+		float hitAngle = Mathf.Atan2(hitDirection.y, hitDirection.x) * Mathf.Rad2Deg;
+		ParticleSystem deathEffect = Instantiate(_deathEffect);
+		var main = deathEffect.main;
+		main.startColor = _spriteRenderer.color;
+		deathEffect.transform.position = transform.position;
+		deathEffect.transform.rotation = Quaternion.Euler(0, 0, hitAngle - 90);
+		deathEffect.Play();
 	}
 }

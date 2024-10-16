@@ -25,13 +25,27 @@ public class GameManager : MonoSingleton<GameManager>
 		_blueTeam = new List<ulong>();
 		_clientId2Team = new Dictionary<ulong, TEAM_TYPE>();
 
+		NetworkManager.Singleton.OnClientStarted += HandleClientStart;
+		NetworkManager.Singleton.OnServerStarted += HandleServerStart;
+
 		DontDestroyOnLoad(gameObject);
+	}
+
+	private void HandleServerStart()
+	{
+		UIManager.SceneUIViewManager.HideView<LoadingView>();
+	}
+
+	private void HandleClientStart()
+	{
+		UIManager.SceneUIViewManager.HideView<LoadingView>();
 	}
 
 	#region Relay
 
 	public async Task<string> CreateRelayGame(UserData userData)
 	{
+		UIManager.SceneUIViewManager.ShowView<LoadingView>();
 		SceneManager.LoadScene("Game");
 
 		NetworkServer = new NetworkServer(_playerPrefab);
@@ -47,6 +61,7 @@ public class GameManager : MonoSingleton<GameManager>
 
 	IEnumerator JoinRelayCo(string code, UserData userData)
 	{
+		UIManager.SceneUIViewManager.ShowView<LoadingView>();
 		AsyncOperation operation = SceneManager.LoadSceneAsync("Game");
 
 		while (!operation.isDone)

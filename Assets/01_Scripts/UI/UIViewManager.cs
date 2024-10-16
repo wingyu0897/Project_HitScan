@@ -1,59 +1,63 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public class UIViewManager : MonoSingleton<UIViewManager>
+public class UIViewManager : MonoBehaviour
 {
-	private List<UIView> _views = new List<UIView>();
+	protected Dictionary<Type, UIView> _viewsByType = new Dictionary<Type, UIView>();
 
-	[SerializeField] private UIView _defaultView;
+	[SerializeField] protected UIView _defaultView;
 
-	protected override void Awake()
+	protected virtual void Awake()
 	{
-		base.Awake();
-
-		GetComponentsInChildren<UIView>(true, _views);
+		foreach (UIView view in GetComponentsInChildren<UIView>(true))
+		{
+			_viewsByType.Add(view.GetType(), view);
+		}
 	}
 
-	private void Start()
+	protected virtual void Start()
 	{
 		if (_defaultView != null)
 			ShowView(_defaultView);
-		else if (_views.Count > 0)
-			ShowView(_views[0]);	
+		else
+			Debug.Log("기본 뷰가 존재하지 않음.");
 	}
 
-	public T GetView<T>() where T : UIView
+	public virtual T GetView<T>() where T : UIView
 	{
-		T view = _views.Find(v => v.GetType() == typeof(T)) as T;
+		T view = _viewsByType[typeof(T)] as T;
 		return view;
 	}
 
-	public void ShowView<T>() where T : UIView
+	public virtual void ShowView<T>() where T : UIView
 	{
-		UIView view = _views.Find(view => view is T);
+		if (_viewsByType.ContainsKey(typeof(T)))
+		{
+			UIView view = _viewsByType[typeof(T)];
+			view.Show();
+		}
+	}
 
+	public virtual void ShowView(UIView view)
+	{
 		if (view != null)
 			view.Show();
 	}
 
-	public void ShowView(UIView view)
+	public virtual void HideView<T>() where T : UIView
 	{
-		if (view != null)
-			view.Show();
+		if (_viewsByType.ContainsKey(typeof(T)))
+		{
+			UIView view = _viewsByType[typeof(T)];
+			view.Hide();
+		}
 	}
 
-	public void HideView<T>() where T : UIView
-	{
-		UIView view = _views.Find(view => view is T);
-
-		if (view != null)
-			view.Hide();
-	}
-
-	public void HideView(UIView view)
+	public virtual void HideView(UIView view)
 	{
 		if (view != null)
-			view.Hide();
+			view?.Hide();
 	}
 }

@@ -22,6 +22,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 	private string _lobbyName;
 
 	public event EventHandler OnSignedIn;
+	public event EventHandler OnSignInFailed;
 	public event EventHandler OnGameStarted;
 	public event EventHandler OnLeaveLobby;
 	public event EventHandler<LobbyEventArgs> OnJoinedLobby;
@@ -49,6 +50,9 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 		HandleLobbyPolling();
 	}
 
+	/// <summary>
+	/// 게임 접속 시도
+	/// </summary>
 	public async void Authenticate(string playerName)
 	{
 		if (_isAuthenticating) return;
@@ -70,10 +74,13 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 
 		await UnityServices.InitializeAsync(initializationOptions);
 
-		AuthenticationService.Instance.SignedIn += () =>
-		{
+		AuthenticationService.Instance.SignedIn += () => {
 			RefreshLobbyList();
 			OnSignedIn?.Invoke(this, EventArgs.Empty);
+		};
+
+		AuthenticationService.Instance.SignInFailed += (e) => {
+			OnSignInFailed?.Invoke(this, EventArgs.Empty);
 		};
 
 		await AuthenticationService.Instance.SignInAnonymouslyAsync();

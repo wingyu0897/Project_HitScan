@@ -138,8 +138,8 @@ public class RankBoard : NetworkBehaviour
 			ui.Team = value.Team;
 			ui.SetOwner(value.ClientID);
 			ui.SetName(value.UserName.ToString());
-			ui.UpdateValue(_rankUIList.Count + 1, value.Kills);
 			_rankUIList.Add(ui);
+			UpdateRank();
 		}
 	}
 
@@ -172,6 +172,34 @@ public class RankBoard : NetworkBehaviour
 				};
 				break;
 			}
+		}
+	}
+
+	private void UpdateRank()
+	{
+		int redRank = 1; // _rankUIList는 레드, 블루 팀이 모두 섞여있기 때문에 랭크를 따로 계산해야 함
+		int blueRank = 1;
+		Transform uiParent;
+
+		_rankUIList.Sort((a, b) => b.Kills.CompareTo(a.Kills));
+
+		// 랭크보드의 값이 변경되었기 때문에 변경된 값을 바탕으로 다시 정렬한다
+		for (int i = 0; i < _rankUIList.Count; ++i)
+		{
+			if (_rankUIList[i].Team == TEAM_TYPE.Red) {
+				uiParent = _redRankListParent;
+				_rankUIList[i].UpdateValue(redRank, _rankUIList[i].Kills);
+				redRank++;
+			}
+			else {
+				uiParent = _blueRankListParent;
+				_rankUIList[i].UpdateValue(blueRank, _rankUIList[i].Kills);
+				blueRank++;
+			}
+
+			// 랭크 순서대로 정렬
+			_rankUIList[i].transform.SetParent(null);
+			_rankUIList[i].transform.SetParent(uiParent);
 		}
 	}
 

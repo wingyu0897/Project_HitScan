@@ -14,7 +14,7 @@ public class KillLog : NetworkBehaviour
 		base.OnNetworkSpawn();
 		Debug.LogWarning("KillLogUI Prefab Pooling");
 
-		_view = UIViewManager.Instance.GetView<GamePlayView>();
+		_view = UIManager.UIViewManager.GetView<GamePlayView>();
 
 		if (IsHost)
 			PlayerAgent.OnPlayerDie += HandlePlayerDie;

@@ -87,7 +87,10 @@ public class NetworkServer : IDisposable
 
 		NetworkObject player = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
 		player.SpawnAsPlayerObject(clientId, true);
-		_spawnedPlayerList.Add(player.GetComponent<PlayerAgent>());
+
+		PlayerAgent agent = player.GetComponent<PlayerAgent>();
+		agent.UserName.Value = GetUserDataByClientID(clientId).UserName;
+		_spawnedPlayerList.Add(agent);
 	}
 
 	/// <summary>

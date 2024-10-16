@@ -2,6 +2,11 @@ using UnityEngine;
 
 namespace Define
 {
+	public enum MESSAGE_TYPE
+	{
+		Kill,
+	}
+
 	public enum TEAM_TYPE
 	{
 		Red = 0,
@@ -15,8 +20,8 @@ namespace Define
 		{
 			return team switch
 			{
-				TEAM_TYPE.Red => Color.red,
-				TEAM_TYPE.Blue => Color.blue,
+				TEAM_TYPE.Red => new Color32(238, 0, 2, 255),
+				TEAM_TYPE.Blue => new Color32(0, 102, 255, 255),
 				_ => Color.black,
 			};
 		}

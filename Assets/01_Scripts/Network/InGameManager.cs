@@ -54,6 +54,8 @@ public class InGameManager : NetworkBehaviour
 			NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
 			StartGame();
 		}
+
+		print(NetworkManager.LocalClientId);
 	}
 
 	public override void OnNetworkDespawn()
@@ -66,7 +68,7 @@ public class InGameManager : NetworkBehaviour
 
 	private void Start()
 	{
-		UIViewManager.Instance.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
+		UIManager.UIViewManager.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
 		PlayerAgent.OnPlayerDie += HandlePlayerDie;
 		PlayerAgent.OnPlayerDespawn += HandlePlayerDespawn;
 
@@ -142,9 +144,8 @@ public class InGameManager : NetworkBehaviour
 	[ClientRpc(RequireOwnership = false)]
 	private void InitializeGameClientRpc(GAME_MODE gameMode)
 	{
-		Debug.Log("InitializeGameClientRpc");
-		UIViewManager.Instance.GetView<GameReadyView>().SetIntermission(false, 0);
-		UIViewManager.Instance.GetView<GamePlayView>().SetGameModeUI(this, gameMode);
+		UIManager.UIViewManager.GetView<GameReadyView>().SetIntermission(false, 0);
+		UIManager.UIViewManager.GetView<GamePlayView>().SetGameModeUI(this, gameMode);
 	}
 
 	private void UpdateGame()
@@ -197,7 +198,7 @@ public class InGameManager : NetworkBehaviour
 	[ClientRpc(RequireOwnership = false)]
 	private void SetIntermissionTextClientRpc(bool active, int time)
 	{
-		UIViewManager.Instance.GetView<GameReadyView>().SetIntermission(active, time);
+		UIManager.UIViewManager.GetView<GameReadyView>().SetIntermission(active, time);
 	}
 
 	#endregion
@@ -206,7 +207,6 @@ public class InGameManager : NetworkBehaviour
 	#region Player
 	private void SpawnPlayer()
 	{
-		Debug.Log("Player Spawned");
 		SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
 	}
 
@@ -219,8 +219,19 @@ public class InGameManager : NetworkBehaviour
 		GameManager.Instance.NetworkServer.RespawnPlayer(clientId, spawnPos.position);
 	}
 
+	private void OnPlayerKilled(string enemyName)
+	{
+		UIManager.UIViewManager.GetView<GamePlayView>().MessageManager.ShowMessage(MESSAGE_TYPE.Kill, enemyName);
+	}
+
 	private void HandlePlayerDie(object sender, PlayerAgent.PlayerEventArgs e)
 	{
+		Debug.Log($"죽인 사람 ID : {e.Player.Health.LastHitClientId}, 로컬 아이디 : {NetworkManager.LocalClientId}");
+		if (e.Player.Health.LastHitClientId == NetworkManager.LocalClientId)
+		{
+			OnPlayerKilled(e.Player.UserName.Value.ToString());
+		}
+
 		if (IsHost)
 		{
 			if (!_isGameRunning) return;

@@ -15,6 +15,9 @@ public class GamePlayView : UIView
     [SerializeField] private TextMeshProUGUI _currentHealthTxt;
     [SerializeField] private Slider _healthSlider;
 
+    [Header("Message")]
+    public MessageManager MessageManager;
+
     [Header("Game Mode")]
     private Dictionary<GAME_MODE, GameModeUI> _gameModeUI = new();
     private GAME_MODE _currentGameMode;
@@ -85,7 +88,6 @@ public class GamePlayView : UIView
 
 	private void HandleOnScoreChanged(int redScore, int blueScore)
 	{
-        Debug.Log($"Score Changed. Red: {redScore} Blue: {blueScore}");
         _gameModeUI[_currentGameMode].SetScore(redScore.ToString(), blueScore.ToString());
 	}
     #endregion

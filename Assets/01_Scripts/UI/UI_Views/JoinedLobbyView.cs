@@ -50,8 +50,8 @@ public class JoinedLobbyView : UIView
 
 	private void OnLeaveLobbyHandler(object sender, EventArgs args)
 	{
-		UIViewManager.Instance.HideView(this);
-		UIViewManager.Instance.ShowView<LobbyView>();
+		UIManager.UIViewManager.HideView(this);
+		UIManager.UIViewManager.ShowView<LobbyView>();
 	}
 
 	private void OnStartGameClick()

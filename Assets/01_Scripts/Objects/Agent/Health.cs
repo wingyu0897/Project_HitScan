@@ -7,7 +7,11 @@ public class Health : NetworkBehaviour
     public int MaxHealth = 100;
     public NetworkVariable<int> CurrentHealth;
 
-	public ulong LastHitClientId { get; private set; }
+	public ulong LastHitClientId => _lastHitClientId.Value;
+	private NetworkVariable<ulong> _lastHitClientId = new NetworkVariable<ulong>();
+
+	public Vector2 HitDirection => _hitDirection.Value;
+	private NetworkVariable<Vector2> _hitDirection = new NetworkVariable<Vector2>();
 
 	public event EventHandler OnDie;
 	public event EventHandler<HealthChangeEventArgs> OnHealthChanged;
@@ -27,7 +31,7 @@ public class Health : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIViewManager.Instance.GetView<GamePlayView>().InitHealthData(MaxHealth);
+			UIManager.UIViewManager.GetView<GamePlayView>().InitHealthData(MaxHealth);
 		}
 
 		if (!IsHost) return;
@@ -52,21 +56,22 @@ public class Health : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIViewManager.Instance.GetView<GamePlayView>().SetHealth(MaxHealth, newValue);
+			UIManager.UIViewManager.GetView<GamePlayView>().SetHealth(MaxHealth, newValue);
 		}
 	}
 
-	public void Damage(int damageValue, ulong dealerId)
+	public void Damage(int damageValue, ulong dealerId, Vector2 hitPoint = default(Vector2))
 	{
 		Debug.Log($"{damageValue} Damaged by {GameManager.Instance.NetworkServer.GetUserDataByClientID(dealerId).UserName}");
 
 		SetDealer(dealerId);
 		ModifyHealth(-damageValue);
+		_hitDirection.Value = hitPoint;
 	}
 
 	public void SetDealer(ulong dealerId)
 	{
-		LastHitClientId = dealerId;
+		_lastHitClientId.Value = dealerId;
 	}
 
 	public void RestoreHealth(int healValue)
