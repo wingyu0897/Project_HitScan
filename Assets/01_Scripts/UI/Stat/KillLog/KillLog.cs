@@ -49,8 +49,6 @@ public class KillLog : NetworkBehaviour
 	{
 		if (!_view.gameObject.activeInHierarchy) return; // 비활성화되어 있다면 코루틴을 실행할 수 없으니 반환
 
-		Debug.Log($"{attackName} Killed {deadName}");
-
 		KillLogPanelUI ui = Instantiate(_killLogUIPrefab, _uiContainer); // 풀링으로 변경 필요
 		ui.Init(attackName, attackColor, deadName, deadColor, 3f);
 	}

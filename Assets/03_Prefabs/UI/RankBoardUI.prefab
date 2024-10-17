@@ -190,6 +190,7 @@ MonoBehaviour:
   UserName: 
   Rank: 0
   Kills: 0
+  Team: 0
   _userNameTxt: {fileID: 7110961514288696790}
   _rankTxt: {fileID: 7364565286810912965}
   _KillsTxt: {fileID: 535118485730492716}

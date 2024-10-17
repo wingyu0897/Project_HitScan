@@ -24,6 +24,6 @@ public class UIManager : MonoSingleton<UIManager>
 
 	private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
-		_uiViewmanager = GameObject.Find("Canvas").GetComponent<UIViewManager>();
+		_uiViewmanager = GameObject.Find("Canvas")?.GetComponent<UIViewManager>();
 	}
 }

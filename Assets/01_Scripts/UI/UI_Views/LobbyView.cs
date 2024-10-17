@@ -27,6 +27,15 @@ public class LobbyView : UIView
 		BindEvents();
 	}
 
+	private void OnDestroy()
+	{
+		if (!LobbyManager.InstanceIsNull)
+		{
+			LobbyManager.Instance.OnLobbyListChanged -= OnLobbyListChangedHandler;
+			LobbyManager.Instance.OnJoinedLobby -= OnJoinedLobbyHandler;
+		}
+	}
+
 	private void BindEvents()
 	{
 		LobbyManager.Instance.OnLobbyListChanged += OnLobbyListChangedHandler;

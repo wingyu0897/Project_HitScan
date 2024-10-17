@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,21 +15,6 @@ public class GamePlayView : UIView
 
     [Header("Message")]
     public MessageManager MessageManager;
-
-    [Header("Game Mode")]
-    private Dictionary<GAME_MODE, GameModeUI> _gameModeUI = new();
-    private GAME_MODE _currentGameMode;
-
-	private void Awake()
-	{
-		foreach (GAME_MODE gameMode in System.Enum.GetValues(typeof(GAME_MODE)))
-		{
-            Debug.Log($"GameMode {gameMode}");
-            GameModeUI gameModeUI = transform.Find("GameModeUIs").Find(gameMode.ToString()).GetComponent<GameModeUI>();
-            _gameModeUI[gameMode] = gameModeUI;
-            gameModeUI.gameObject.SetActive(false);
-        }
-	}
 
 	#region Weapon
 	public void InitWeaponData(int maxAmmo, Sprite weaponSprite)
@@ -60,33 +44,5 @@ public class GamePlayView : UIView
 	#endregion
 
 	#region GameModeUI
-    public void SetIntermission()
-	{
-
-	}
-
-	public void SetGameModeUI(InGameManager inGameMng, GAME_MODE gameMode)
-	{
-        inGameMng.OnGameTimerCount += HandleOnGameTimerCount;
-        inGameMng.OnScoreChanged += HandleOnScoreChanged;
-        _currentGameMode = gameMode;
-
-        foreach (var gameModeUI in _gameModeUI)
-		{
-            gameModeUI.Value.gameObject.SetActive(gameModeUI.Key == _currentGameMode);
-		}
-    }
-
-	private void HandleOnGameTimerCount(int leftTime)
-	{
-        int leftMinutes = leftTime / 60;
-        int leftSeconds = leftTime % 60;
-        _gameModeUI[_currentGameMode].SetTime(string.Format("{0:0}:{1:00}", leftMinutes, leftSeconds));
-	}
-
-	private void HandleOnScoreChanged(int redScore, int blueScore)
-	{
-        _gameModeUI[_currentGameMode].SetScore(redScore.ToString(), blueScore.ToString());
-	}
     #endregion
 }

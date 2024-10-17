@@ -12,10 +12,12 @@ public class GameManager : MonoSingleton<GameManager>
 
 	private List<ulong> _redTeam;
 	private List<ulong> _blueTeam;
-
 	private Dictionary<ulong, TEAM_TYPE> _clientId2Team;
 
 	public NetworkServer NetworkServer;
+
+	public string UserName { get; set; }
+	private bool _joinAsClient = false;
 
 	protected override void Awake()
 	{
@@ -25,19 +27,27 @@ public class GameManager : MonoSingleton<GameManager>
 		_blueTeam = new List<ulong>();
 		_clientId2Team = new Dictionary<ulong, TEAM_TYPE>();
 
-		NetworkManager.Singleton.OnClientStarted += HandleClientStart;
-		NetworkManager.Singleton.OnServerStarted += HandleServerStart;
+		//NetworkManager.Singleton.OnClientStarted += HandleClientStart;
+		//NetworkManager.Singleton.OnServerStarted += HandleServerStart;
 
 		DontDestroyOnLoad(gameObject);
 	}
 
+	private void Start()
+	{
+		// 모든 게임 시스템 셋업이 끝난 후 Main 씬으로 이동
+		SceneManager.LoadScene("Main");
+	}
+
 	private void HandleServerStart()
 	{
+		if (_joinAsClient) return;
 		UIManager.SceneUIViewManager.HideView<LoadingView>();
 	}
 
 	private void HandleClientStart()
 	{
+		if (!_joinAsClient) return;
 		UIManager.SceneUIViewManager.HideView<LoadingView>();
 	}
 
@@ -45,6 +55,8 @@ public class GameManager : MonoSingleton<GameManager>
 
 	public async Task<string> CreateRelayGame(UserData userData)
 	{
+		_joinAsClient = false;
+
 		UIManager.SceneUIViewManager.ShowView<LoadingView>();
 		SceneManager.LoadScene("Game");
 
@@ -61,6 +73,8 @@ public class GameManager : MonoSingleton<GameManager>
 
 	IEnumerator JoinRelayCo(string code, UserData userData)
 	{
+		_joinAsClient = true;
+
 		UIManager.SceneUIViewManager.ShowView<LoadingView>();
 		AsyncOperation operation = SceneManager.LoadSceneAsync("Game");
 
@@ -70,9 +84,40 @@ public class GameManager : MonoSingleton<GameManager>
 		RelayManager.Instance.JoinRelay(code, userData);
 	}
 
+	/// <summary>
+	/// 게임 퇴장
+	/// </summary>
+	public void LeaveRelayGame()
+	{
+		_redTeam.Clear();
+		_blueTeam.Clear();
+		_clientId2Team.Clear();
+
+		//UIManager.SceneUIViewManager.ShowView<LoadingView>();
+		StartCoroutine(LeaveRelayCo());
+		//UIManager.SceneUIViewManager.HideView<LoadingView>();
+	}
+
+	IEnumerator LeaveRelayCo()
+	{
+		RelayManager.Instance.LeaveRelay();
+		LobbyManager.Instance.LeaveLobby();
+		NetworkServer?.Dispose();
+
+		AsyncOperation operation = SceneManager.LoadSceneAsync("Main");
+
+		while (!operation.isDone)
+			yield return null;
+
+		// 게임에서 퇴장하는 경우에는 이미 인증을 마친 상황이니 인증 화면이 아닌 로비 화면을 보여준다
+		UIManager.UIViewManager.HideView<AuthenticationView>();
+		UIManager.UIViewManager.ShowView<LobbyView>();
+	}
+
 	#endregion
 
 	#region Battle
+	// 클라리언트에서는 아래의 함수를 실행할 수 없다. 호스트 전용
 
 	public void AddUser(ulong clientId)
 	{

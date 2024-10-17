@@ -53,4 +53,12 @@ public class RelayManager : MonoSingleton<RelayManager>
 			Debug.Log(e);
 		}
 	}
+
+	public void LeaveRelay()
+	{
+		if (NetworkManager.Singleton.IsHost)
+			return;
+
+		NetworkManager.Singleton.Shutdown();
+	}
 }

@@ -9,7 +9,7 @@ public enum GAME_MODE
 	TeamDeathMatch,
 }
 
-public class InGameManager : NetworkBehaviour
+public class BattleManager : NetworkSingleton<BattleManager>
 {
 	[Header("GameMode")]
 	private GAME_MODE _gameMode;
@@ -38,6 +38,7 @@ public class InGameManager : NetworkBehaviour
 	// events
 	public event Action<int> OnGameTimerCount;
 	public event Action<int/*Red*/, int/*Blue*/> OnScoreChanged;
+	public event Action<GAME_MODE> OnGameStarted;
 
 	public override void OnNetworkSpawn()
 	{
@@ -55,7 +56,7 @@ public class InGameManager : NetworkBehaviour
 			StartGame();
 		}
 
-		print(NetworkManager.LocalClientId);
+		UIManager.SceneUIViewManager.HideView<LoadingView>(); // OnNetworkSpawn이 실행될 때 Game 씬의 모든 요소가 활성화되기 때문에 LoadingView를 내려주는 것 또한 여기서 실행
 	}
 
 	public override void OnNetworkDespawn()
@@ -127,6 +128,7 @@ public class InGameManager : NetworkBehaviour
 	/// </summary>
 	private void InitializeGame()
 	{
+		// 점수 초기화
 		switch (_gameMode)
 		{
 			case GAME_MODE.TeamDeathMatch:
@@ -137,6 +139,7 @@ public class InGameManager : NetworkBehaviour
 				throw new System.Exception("AAAAh 게임 모드 초기화 에러!");
 		}
 
+		// 클라이언트에서 초기화할 것들 (UI 같은 거)
 		InitializeGameClientRpc(_gameMode);
 		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value);
 	}
@@ -145,17 +148,22 @@ public class InGameManager : NetworkBehaviour
 	private void InitializeGameClientRpc(GAME_MODE gameMode)
 	{
 		UIManager.UIViewManager.GetView<GameReadyView>().SetIntermission(false, 0);
-		UIManager.UIViewManager.GetView<GamePlayView>().SetGameModeUI(this, gameMode);
+		//UIManager.UIViewManager.GetView<GamePlayView>().SetGameModeUI(this, gameMode);
+
+		OnGameStarted?.Invoke(_gameMode);
 	}
 
 	private void UpdateGame()
 	{
 		if (_isGameRunning)
 		{
+			// 남은 시간 업데이트
 			int leftTime = _gameDurationSec - (int)Time.unscaledTime + _gameStartTime;
-			if (leftTime < 0)
+			if (leftTime < 0) // 시간이 다 되었다면 게임 종료
+			{
+				leftTime = 0;
 				EndGame();
-
+			}
 			UpdateGameClientRpc(leftTime);
 		}
 	}
@@ -166,33 +174,39 @@ public class InGameManager : NetworkBehaviour
 		OnGameTimerCount?.Invoke(leftTime);
 	}
 
+	/// <summary>
+	/// 게임 종료시키는 함수
+	/// </summary>
 	public void EndGame()
 	{
-		_isSpawnable = false;
-		_isGameRunning = false;
-		GameManager.Instance.NetworkServer.KillAllPlayer(true);
+		if (!IsHost) return;
+
+		_isSpawnable = false; // 스폰 불가
+		_isGameRunning = false; // 게임 업데이트 중단(제한 시간, 점수 등)
+		GameManager.Instance.NetworkServer.KillAllPlayer(true); // 남아있는 모든 플레이어 처리
 
 		StopAllCoroutines();
 		StartCoroutine(IntermissionCo());
 	}
 
+	/// <summary>
+	/// 다음 게임을 시작하기까지 대기
+	/// </summary>
 	IEnumerator IntermissionCo()
 	{
 		float timer = _intermissionTime;
 		
 		while (timer > 0)
 		{
-			timer -= Time.deltaTime;
+			timer = Mathf.Clamp(timer - Time.deltaTime, 0, _intermissionTime);
 
-			SetIntermissionTextClientRpc(true, Mathf.FloorToInt(timer));
+			SetIntermissionTextClientRpc(true, Mathf.CeilToInt(timer));
 
 			yield return null;
 		}
 
-		SetIntermissionTextClientRpc(true, 0);
-
-		_rankBoard.ResetRankboard();
-		StartGame();
+		_rankBoard.ResetRankboard(); // 랭크보드 초기화
+		StartGame(); // 대기 시간이 끝나면 새로운 게임 진행
 	}
 
 	[ClientRpc(RequireOwnership = false)]
@@ -205,29 +219,36 @@ public class InGameManager : NetworkBehaviour
 
 
 	#region Player
+	/// <summary>
+	/// 플레이어 스폰
+	/// </summary>
 	private void SpawnPlayer()
 	{
+		// 요청은 클라이언트에서, 생성은 서버에서 한다
 		SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
 	}
 
 	[ServerRpc(RequireOwnership = false)]
 	private void SpawnPlayerServerRpc(ulong clientId)
 	{
-		if (!_isSpawnable) return;
+		if (!_isSpawnable) return; // 게임 종료 등의 상황에는 스폰이 불가함
 
 		Transform spawnPos = GameManager.Instance.GetTeam(clientId) == TEAM_TYPE.Red ? _redTeamSpawn : _blueTeamSpawn;
 		GameManager.Instance.NetworkServer.RespawnPlayer(clientId, spawnPos.position);
 	}
-
+	
+	/// <summary>
+	/// 다른 플레이어를 죽였을 때
+	/// </summary>
 	private void OnPlayerKilled(string enemyName)
 	{
+		// 킬 메시지를 띄운다
 		UIManager.UIViewManager.GetView<GamePlayView>().MessageManager.ShowMessage(MESSAGE_TYPE.Kill, enemyName);
 	}
 
 	private void HandlePlayerDie(object sender, PlayerAgent.PlayerEventArgs e)
 	{
-		Debug.Log($"죽인 사람 ID : {e.Player.Health.LastHitClientId}, 로컬 아이디 : {NetworkManager.LocalClientId}");
-		if (e.Player.Health.LastHitClientId == NetworkManager.LocalClientId)
+		if (e.Player.Health.LastHitClientId == NetworkManager.LocalClientId) // 로컬 클라이언트가 죽인 것인가?
 		{
 			OnPlayerKilled(e.Player.UserName.Value.ToString());
 		}
@@ -235,8 +256,6 @@ public class InGameManager : NetworkBehaviour
 		if (IsHost)
 		{
 			if (!_isGameRunning) return;
-
-			Debug.Log($"ClientId: {e.Player.Health.LastHitClientId}, UserName: {GameManager.Instance.NetworkServer.GetUserDataByClientID(e.Player.Health.LastHitClientId)?.UserName ?? "KillZone"}, Kill: 1");
 
 			if (GameManager.Instance.GetTeam(e.Player.OwnerClientId) == TEAM_TYPE.Red)
 				_blueScore.Value += 1;
@@ -248,7 +267,7 @@ public class InGameManager : NetworkBehaviour
 	}
 
 	/// <summary>
-	/// 블루, 레드 중 하나라도 점수가 변경 되었을 시, 이를 UI에 반영하도록 Rpc 실행
+	/// 블루, 레드 중 하나라도 점수가 변경 되었을 시, 점수 UI를 새로고침함
 	/// </summary>
 	private void HandleScoreChanged(int previousValue, int newValue)
 	{
@@ -261,18 +280,24 @@ public class InGameManager : NetworkBehaviour
 		OnScoreChanged?.Invoke(redScore, blueScore);
 	}
 
+	/// <summary>
+	/// 만약 플레이어가 죽었다면
+	/// </summary>
 	private void HandlePlayerDespawn(object sender, PlayerAgent.PlayerEventArgs e)
 	{
 		if (IsHost)
 		{
-			GameManager.Instance.NetworkServer.PlayerDespawned(e.Player.OwnerClientId);
+			GameManager.Instance.NetworkServer.PlayerDespawned(e.Player.OwnerClientId); // NetworkServer에 알린다
 		}
 	}
 
+	/// <summary>
+	/// 새로운 플레이어가 접속했을 때
+	/// </summary>
 	private void HandleClientConnected(ulong clientId)
 	{
 		InitializeGameClientRpc(_gameMode);
-		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value);
+		UpdateScoreClientRpc(_redScore.Value, _blueScore.Value); // 새로훈 플레이어의 UI에 현재 점수를 반영
 
 		Debug.Log("New player Connected");
 	}

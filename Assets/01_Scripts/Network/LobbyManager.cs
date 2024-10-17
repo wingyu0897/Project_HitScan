@@ -77,6 +77,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 		AuthenticationService.Instance.SignedIn += () => {
 			RefreshLobbyList();
 			OnSignedIn?.Invoke(this, EventArgs.Empty);
+			GameManager.Instance.UserName = _playerName; // 로그인에 성공하면 GameManager에 유저 이름을 저장한다
 		};
 
 		AuthenticationService.Instance.SignInFailed += (e) => {
@@ -122,9 +123,12 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 				}
 
 				//if (!IsPlayerInLobby()) // Kicked
-				{
+				//{
+				//
+				//}
 
-				}
+				if (_joinedLobby == null)
+					print("null1");
 
 				if (_joinedLobby.Data[KEY_START_GAME].Value != "0")
 				{
@@ -279,7 +283,12 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 	
 	public async void LeaveLobby()
 	{
-		if (_joinedLobby == null) return;
+		if (_joinedLobby == null)
+		{
+			RefreshLobbyList();
+			OnLeaveLobby?.Invoke(this, EventArgs.Empty);
+			return;
+		}
 
 		try
 		{
@@ -287,20 +296,25 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 			{
 				if (_joinedLobby.Players.Count > 1)
 					MigrateLobbyHost();
+				else
+					DeleteLobby();
 
 				_hostLobby = null;
 			}
 
 			await LobbyService.Instance.RemovePlayerAsync(_joinedLobby.Id, AuthenticationService.Instance.PlayerId);
-
-			_joinedLobby = null;
-			RefreshLobbyList();
-
-			OnLeaveLobby?.Invoke(this, EventArgs.Empty);
 		}
 		catch (LobbyServiceException e)
 		{
 			Debug.Log(e);
+		}
+		finally
+		{
+			_isJoinedGame = false;
+			_joinedLobby = null;
+			RefreshLobbyList();
+
+			OnLeaveLobby?.Invoke(this, EventArgs.Empty);
 		}
 	}
 
@@ -343,7 +357,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 
 		try
 		{
-			await LobbyService.Instance.DeleteLobbyAsync(_hostLobby.Id);
+			await LobbyService.Instance?.DeleteLobbyAsync(_hostLobby.Id);
 			_hostLobby = null;
 		}
 		catch (LobbyServiceException e)
@@ -381,9 +395,13 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 	{
 		base.OnDestroy();
 
-		if (_hostLobby != null)
+		//if (_hostLobby != null)
+		//{
+		//	DeleteLobby();
+		//}
+		if (_joinedLobby != null)
 		{
-			DeleteLobby();
+			LeaveLobby();
 		}
 	}
 }
