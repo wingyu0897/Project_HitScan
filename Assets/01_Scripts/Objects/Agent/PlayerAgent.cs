@@ -24,6 +24,9 @@ public class PlayerAgent : NetworkBehaviour
 	// Prefabs
 	[SerializeField] private ParticleSystem _deathEffect;
 
+	// Flags
+	private bool _isDead = false;
+
 	private void Awake()
 	{
 		_health = GetComponent<Health>();
@@ -38,7 +41,10 @@ public class PlayerAgent : NetworkBehaviour
 		SetColorServerRpc();
 
 		if (IsServer)
+		{
 			_health.OnDie += HandleOnDie;
+			_isDead = false;
+		}
 
 		if (IsOwner)
 		{
@@ -68,6 +74,10 @@ public class PlayerAgent : NetworkBehaviour
 
 	public void Kill()
 	{
+		if (_isDead) return;
+
+		_isDead = true;
+
 		string killerName = GameManager.Instance.NetworkServer.GetUserDataByClientID(Health.LastHitClientId).UserName;
 		KillClientRpc(killerName);
 		//Destroy(gameObject);
@@ -122,33 +132,13 @@ public class PlayerAgent : NetworkBehaviour
 	/// </summary>
 	public void KillImmediately()
 	{
-		//Destroy(gameObject);
+		if (_isDead) return;
 
-		//OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
-
-		//if (IsOwner)
-		//{
-		//	CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
-		//	UIViewManager.Instance.ShowView<GameReadyView>();
-		//	CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
-		//}
+		_isDead = true;
 
 		string killerName = GameManager.Instance.NetworkServer.GetUserDataByClientID(Health.LastHitClientId).UserName;
 		KillClientRpc(killerName, true);
 	}
-
-	//[ClientRpc]
-	//public void SetLayerClientRpc(int layer)
-	//{
-	//	gameObject.layer = layer;
-	//	transform.Find("Visual").gameObject.layer = layer;
-	//}
-
-	//public void SetLayer(int layer)
-	//{
-	//	gameObject.layer = layer;
-	//	transform.Find("Visual").gameObject.layer = layer;
-	//}
 
 	[ServerRpc(RequireOwnership = false)]
 	private void SetColorServerRpc()
