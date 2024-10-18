@@ -17,6 +17,7 @@ public class GameManager : MonoSingleton<GameManager>
 	public NetworkServer NetworkServer;
 
 	public string UserName { get; set; }
+	public string Weapon { get; set; } = "Sample";
 	private bool _joinAsClient = false;
 
 	protected override void Awake()

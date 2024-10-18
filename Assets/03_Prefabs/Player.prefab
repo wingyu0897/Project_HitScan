@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7228273772605682920}
   - component: {fileID: 2051471104631421179}
   m_Layer: 0
-  m_Name: Sample
+  m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -298,7 +298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3464448330
+  GlobalObjectIdHash: 4276580353
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -425,6 +425,7 @@ MonoBehaviour:
         byte0028: 0
         byte0029: 0
   _spriteRenderer: {fileID: 6767591441980386091}
+  _weaponHolder: {fileID: 4949522664633068246}
   _deathEffect: {fileID: 1209397714114445171, guid: 291b0bc62dbba4245a2154c0abf89c6d, type: 3}
 --- !u!114 &5601040846138925514
 MonoBehaviour:
@@ -465,6 +466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d9b661a7689bab49821760e4e9721f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _weapons: {fileID: 11400000, guid: 57916153fba70bc4c9fe8a335008765f, type: 2}
   _weaponTrm: {fileID: 7212784913174931662}
   _weaponLerp: 15
   _weapon: {fileID: 2051471104631421179}

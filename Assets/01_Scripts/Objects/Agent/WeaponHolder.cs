@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WeaponHolder : NetworkBehaviour
 {
+	[SerializeField] private WeaponsSO _weapons;
+
 	[SerializeField] private Transform _weaponTrm;
 	[Range(1f, 100f)]
 	[SerializeField] private float _weaponLerp = 15f;
@@ -19,7 +21,9 @@ public class WeaponHolder : NetworkBehaviour
 		if (!IsOwner) return;
 
 		_beforePos = transform.position;
-		SetWeapon(_weapon);
+		_weapon.OnReloaded += HandleReloaded;
+
+		SetWeaponUI(_weapon.Data);
 	}
 
 	private void FixedUpdate()
@@ -32,11 +36,37 @@ public class WeaponHolder : NetworkBehaviour
 		SetPosition();
 	}
 
-	public void SetWeapon(Weapon weapon)
+	/// <summary>
+	/// 플레이어가 생성될 때 서버에서 실행하는 무기 변경 함수
+	/// </summary>
+	[ServerRpc]
+	public void ChangeWeaponServerRpc(string weaponId)
 	{
-		_weapon = weapon;
-		_weapon.OnReloaded += HandleReloaded;
-		UIManager.UIViewManager.GetView<GamePlayView>().InitWeaponData(_weapon.Data.MaxAmmo, _weapon.Data.Visual);
+		WeaponDataSO weapon = _weapons.Weapons.Find(x => x.Name == weaponId);
+		if (weapon != null)
+		{
+			_weapon.ChangeWeapon(weapon);
+			ChangeWeaponClientRpc(weaponId);
+		}
+	}
+
+	[ClientRpc]
+	public void ChangeWeaponClientRpc(string weaponId)
+	{
+		WeaponDataSO weapon = _weapons.Weapons.Find(x => x.Name == weaponId);
+		if (weapon != null)
+		{
+			_weapon.ChangeWeaponClient(weapon);
+			if (IsOwner)
+			{
+				SetWeaponUI(weapon);
+			}
+		}
+	}
+
+	public void SetWeaponUI(WeaponDataSO weapon)
+	{
+		UIManager.UIViewManager.GetView<GamePlayView>().InitWeaponData(weapon.MaxAmmo, weapon.Visual);
 	}
 
 	private void HandleReloaded()
@@ -67,12 +97,10 @@ public class WeaponHolder : NetworkBehaviour
 		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
-	public void Attack()
+	public void TryAttack()
 	{
-		if (_weapon.Attack())
-		{
-			UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
-		}
+		_weapon.TryAttack();
+		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	public void TriggerOff()

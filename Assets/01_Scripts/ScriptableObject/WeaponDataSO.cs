@@ -5,6 +5,7 @@ public class WeaponDataSO : ScriptableObject
 {
     [Header("Visual")]
     public Sprite Visual;
+    public string Name;
 
     [Header("Damage")]
     public int Damage;
@@ -21,6 +22,8 @@ public class WeaponDataSO : ScriptableObject
     [Header("Aiming")]
     public float AimingDistance;
     public float AimingOrthoRatio = 1f;
+    [Range(0, 1f)]
+    public float AimingSlowdown = 0.5f;
 
     [Header("ETC")]
     public TrailRenderer _bulletTrailPrefab;

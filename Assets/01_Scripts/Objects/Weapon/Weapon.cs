@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Weapon : NetworkBehaviour
 {
+	private SpriteRenderer _spriteRen;
+
     [SerializeField] private WeaponDataSO _data;
 	public WeaponDataSO Data => _data;
 
@@ -20,12 +22,42 @@ public class Weapon : NetworkBehaviour
 
 	private void Awake()
 	{
+		_spriteRen = GetComponent<SpriteRenderer>();
+	}
+
+	public override void OnNetworkSpawn()
+	{
+		base.OnNetworkSpawn();
+
+		if (IsHost)
+		{
+			ChangeWeapon(_data);
+		}
+	}
+
+	public void ChangeWeapon(WeaponDataSO data)
+	{
+		_data = data;
+		_spriteRen.sprite = _data.Visual;
 		_ammo = _data.MaxAmmo;
 		_lastFireTime = -_data.FireRate;
 	}
 
-	#region Attack  // 공격 가능 여부 및 공격 가능 여부는 각 클라이언트에서 게산
+	public void ChangeWeaponClient(WeaponDataSO data)
+	{
+		_data = data;
+		_spriteRen.sprite = _data.Visual;
+	}
+
+	#region Attack
 	public virtual void TriggerOn()
+	{
+		TriggerOnServerRpc();
+	}
+
+	// 나중에 서버에서 계산하는 것으로 다 바꿔야 할 듯?
+	[ServerRpc]
+	private void TriggerOnServerRpc()
 	{
 		if (_ammo == 0)
 		{
@@ -35,25 +67,35 @@ public class Weapon : NetworkBehaviour
 		else if (!_data.IsAuto)
 		{
 			// 단발 사격일 경우 바로 사격한다
-			Attack();
+			TryAttack();
 		}
 
 		_isTriggered = true;
 	}
 
-	public virtual bool Attack()
+	public virtual void TryAttack()
 	{
-		if (_isReloading ||  _ammo == 0 || (_isTriggered && !_data.IsAuto)) return false; // 재장전 중 or 총알 없음 or 연사 불가능 상태일 경우
-		if (Time.time - _lastFireTime < _data.FireRate) return false; // 쿨타임 중일 경우
+		TryAttackServerRpc(ClientId);
+	}
 
-		_lastFireTime = Time.time;
+	/// <summary>
+	/// 공격이 가능한지 판단하는 서버Rpc 함수
+	/// </summary>
+	[ServerRpc]
+	private void TryAttackServerRpc(ulong clientId)
+	{
+		if (_isReloading || _ammo == 0 || (_isTriggered && !_data.IsAuto)) return; // 재장전 중 or 총알 없음 or 연사가 아님
+		if (Time.time - _lastFireTime < _data.FireRate) return; // 발사 쿨타임 중일 경우
 
-		DrawTraceImmediatley();		// 발사한 클라이언트에서는 즉시 총알의 궤적을 계산하여 그려준다. 다른 클라이언트는 서버에서 계산된 총알의 궤적을 통해 그려준다
-		AttackServerRpc(ClientId);	// 서버 Rpc를 통해 서버에서 공격을 계산한다
-		
-		--_ammo;
+		AttackClientRpc();
+		AttackServerRpc(clientId);
+	}
 
-		return true;
+	[ClientRpc]
+	private void AttackClientRpc()
+	{
+		if (IsOwner)
+			DrawTraceImmediatley();
 	}
 
 	/// <summary>
@@ -65,6 +107,10 @@ public class Weapon : NetworkBehaviour
 	{
 		ClientId = clientId;
 
+		_lastFireTime = Time.time;
+		--_ammo;
+
+		// --- 레이캐스트 ---
 		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
 
 		RaycastHit2D[] hits = new RaycastHit2D[2];
@@ -99,11 +145,19 @@ public class Weapon : NetworkBehaviour
 
 	public virtual void TriggerOff()
 	{
+		TriggerOffServerRpc();
+	}
+
+	[ServerRpc]
+	private void TriggerOffServerRpc()
+	{
 		_isTriggered = false;
 	}
 
 	public void Reload()
 	{
+		if (!IsServer) return;
+
 		if (_isReloading) return; // 장전 중
 
 		_isReloading = true;
@@ -122,6 +176,13 @@ public class Weapon : NetworkBehaviour
 
 		_ammo = _data.MaxAmmo;
 		_isReloading = false;
+
+		ReloadedClientRpc();
+	}
+
+	[ClientRpc]
+	private void ReloadedClientRpc()
+	{
 		OnReloaded?.Invoke();
 	}
 	#endregion
@@ -158,7 +219,7 @@ public class Weapon : NetworkBehaviour
 	[ClientRpc]
 	private void DrawTraceClientRpc(Vector2 start, Vector2 end, float time)
 	{
-		if (IsOwner) return;
+		//if (IsOwner) return;
 
 		DrawTrace(start, end, time);
 	}

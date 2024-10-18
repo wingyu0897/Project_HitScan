@@ -18,6 +18,8 @@ public class PlayerAgent : NetworkBehaviour
 
 	// References
 	[SerializeField] private SpriteRenderer _spriteRenderer;
+	[SerializeField] private WeaponHolder _weaponHolder;
+	public WeaponHolder WeaponHolder => _weaponHolder;
 	private Health _health;
 	public Health Health => _health;
 

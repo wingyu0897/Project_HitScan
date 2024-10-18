@@ -38,7 +38,7 @@ public class PlayerInput : NetworkBehaviour
 		if (Input.GetMouseButtonUp(0))
 			_weaponHolder.TriggerOff();
 		if (Input.GetMouseButton(0))
-			_weaponHolder.Attack();
+			_weaponHolder.TryAttack();
 
 		if (Input.GetKeyDown(KeyCode.R))
 			_weaponHolder.Reload();

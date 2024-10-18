@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Sample
   m_EditorClassIdentifier: 
   Visual: {fileID: 21300000, guid: cdc4122ecf3219f41b7ea77882fb461b, type: 3}
+  Name: Sample
   Damage: 50
   MaxAmmo: 7
   ReloadTime: 1

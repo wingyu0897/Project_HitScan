@@ -89,6 +89,7 @@ public class NetworkServer : IDisposable
 		player.SpawnAsPlayerObject(clientId, true);
 
 		PlayerAgent agent = player.GetComponent<PlayerAgent>();
+		agent.WeaponHolder.ChangeWeaponServerRpc(GameManager.Instance.Weapon);
 		agent.UserName.Value = GetUserDataByClientID(clientId).UserName;
 		_spawnedPlayerList.Add(agent);
 	}

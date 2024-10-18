@@ -12,6 +12,7 @@ public class Movement : NetworkBehaviour
 	private Vector2 _moveDir;
 	private bool _isGrounded = false;
 	private float _coyoteTimer;
+	private float _slowdown = 0f;
 
 	private void Awake()
 	{
@@ -32,9 +33,14 @@ public class Movement : NetworkBehaviour
 		Move();
 	}
 
+	public void SetSlowdown(float slowdown)
+	{
+		_slowdown = 1f - Mathf.Clamp(slowdown, 0, 1f);
+	}
+
 	public void SetMove(Vector2 dir)
 	{
-		_moveDir.x = dir.x * _moveSpeed;
+		_moveDir.x = dir.x * _moveSpeed * _slowdown;
 	}
 
 	private void Move()
@@ -49,7 +55,7 @@ public class Movement : NetworkBehaviour
 	{
 		if (_isGrounded || _coyoteTimer > 0f)
 		{
-			_rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce);
+			_rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce * _slowdown);
 			_coyoteTimer = 0;
 		}
 	}

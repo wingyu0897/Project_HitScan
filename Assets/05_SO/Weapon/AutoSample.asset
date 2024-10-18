@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AutoSample
   m_EditorClassIdentifier: 
   Visual: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  Name: Auto
   Damage: 100
   MaxAmmo: 30
   ReloadTime: 1.2
