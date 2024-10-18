@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 1660586975
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: cdc4122ecf3219f41b7ea77882fb461b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2f059fb912e2fd242a80ee5b6ff250df, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -257,11 +257,11 @@ GameObject:
   - component: {fileID: 7797364528885536855}
   - component: {fileID: 5177512008608143229}
   - component: {fileID: 5518304107477489116}
+  - component: {fileID: 3995513169374696498}
   - component: {fileID: 6581048948517944023}
   - component: {fileID: 5601040846138925514}
   - component: {fileID: 8773491002279673756}
   - component: {fileID: 4949522664633068246}
-  - component: {fileID: 3995513169374696498}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -377,6 +377,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3995513169374696498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4046991475375814967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fb3ae32efc8ffd4ab713eead825ff6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 100
+  CurrentHealth:
+    m_InternalValue: 0
 --- !u!114 &6581048948517944023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -470,21 +485,6 @@ MonoBehaviour:
   _weaponTrm: {fileID: 7212784913174931662}
   _weaponLerp: 15
   _weapon: {fileID: 2051471104631421179}
---- !u!114 &3995513169374696498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4046991475375814967}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fb3ae32efc8ffd4ab713eead825ff6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaxHealth: 100
-  CurrentHealth:
-    m_InternalValue: 0
 --- !u!1 &6004547861275734647
 GameObject:
   m_ObjectHideFlags: 0

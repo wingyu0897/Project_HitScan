@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
   m_Name: AutoSample
   m_EditorClassIdentifier: 
-  Visual: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  Visual: {fileID: 21300000, guid: cdc4122ecf3219f41b7ea77882fb461b, type: 3}
   Name: Auto
   Damage: 100
   MaxAmmo: 30
@@ -22,4 +22,5 @@ MonoBehaviour:
   IsAuto: 1
   AimingDistance: 3
   AimingOrthoRatio: 1.2
+  AimingSlowdown: 0.5
   _bulletTrailPrefab: {fileID: 7225524804424330371, guid: 4caf20709bf55bc438cbca4497acf1fc, type: 3}

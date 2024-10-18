@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class Weapon : NetworkBehaviour
 
     [SerializeField] private WeaponDataSO _data;
 	public WeaponDataSO Data => _data;
+	private List<TrailRenderer> _trails = new List<TrailRenderer>();
 
 	private int _ammo;
 	public int Ammo => _ammo;
@@ -23,6 +25,16 @@ public class Weapon : NetworkBehaviour
 	private void Awake()
 	{
 		_spriteRen = GetComponent<SpriteRenderer>();
+	}
+
+	public override void OnDestroy()
+	{
+		base.OnDestroy();
+		if (_trails.Count > 0)
+		{
+			StopAllCoroutines();
+			_trails.ForEach(t => Destroy(t.gameObject));
+		}
 	}
 
 	public override void OnNetworkSpawn()
@@ -233,6 +245,7 @@ public class Weapon : NetworkBehaviour
 
 	IEnumerator DrawTraceCo(TrailRenderer trail, Vector2 startPoint, Vector2 hitPoint, float time)
 	{
+		_trails.Add(trail);
 		trail.Clear();
 		float timer = time;
 		while (timer > 0)
@@ -243,8 +256,11 @@ public class Weapon : NetworkBehaviour
 		}
 
 		trail.transform.position = hitPoint;
+
 		yield return new WaitForSeconds(trail.time);
+
 		Destroy(trail.gameObject);
+		_trails.Remove(trail);
 	}
 	#endregion
 }

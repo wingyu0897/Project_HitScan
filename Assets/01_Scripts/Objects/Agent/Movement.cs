@@ -12,7 +12,7 @@ public class Movement : NetworkBehaviour
 	private Vector2 _moveDir;
 	private bool _isGrounded = false;
 	private float _coyoteTimer;
-	private float _slowdown = 0f;
+	private float _slowdown = 1f;
 
 	private void Awake()
 	{

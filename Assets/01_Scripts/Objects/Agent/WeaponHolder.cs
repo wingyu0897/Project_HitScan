@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WeaponHolder : NetworkBehaviour
 {
+	private Movement _movement;
+
 	[SerializeField] private WeaponsSO _weapons;
 
 	[SerializeField] private Transform _weaponTrm;
@@ -19,6 +21,8 @@ public class WeaponHolder : NetworkBehaviour
 		base.OnNetworkSpawn();
 
 		if (!IsOwner) return;
+
+		_movement = GetComponent<Movement>();
 
 		_beforePos = transform.position;
 		_weapon.OnReloaded += HandleReloaded;
@@ -133,10 +137,12 @@ public class WeaponHolder : NetworkBehaviour
 		Vector3 targetPos = mouseDir * distance;
 		
 		CameraManager.Instance.AimCamera(targetPos, _weapon.Data.AimingOrthoRatio);
+		_movement.SetSlowdown(_weapon.Data.AimingSlowdown);
 	}
 
 	public void CompleteAiming()
 	{
 		CameraManager.Instance.AimCamera(Vector2.zero);
+		_movement.SetSlowdown(0f);
 	}
 }
