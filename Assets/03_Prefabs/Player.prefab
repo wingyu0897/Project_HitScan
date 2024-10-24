@@ -257,9 +257,9 @@ GameObject:
   - component: {fileID: 7797364528885536855}
   - component: {fileID: 5177512008608143229}
   - component: {fileID: 5518304107477489116}
-  - component: {fileID: 3995513169374696498}
-  - component: {fileID: 6581048948517944023}
   - component: {fileID: 5601040846138925514}
+  - component: {fileID: 6581048948517944023}
+  - component: {fileID: 3995513169374696498}
   - component: {fileID: 8773491002279673756}
   - component: {fileID: 4949522664633068246}
   m_Layer: 7
@@ -377,7 +377,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3995513169374696498
+--- !u!114 &5601040846138925514
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -386,12 +386,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4046991475375814967}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fb3ae32efc8ffd4ab713eead825ff6f, type: 3}
+  m_Script: {fileID: 11500000, guid: a75ce02c75a8d3940aba3fde883e8642, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
-  CurrentHealth:
-    m_InternalValue: 0
+  _inputReader: {fileID: 11400000, guid: e053885c40d96e0429f3e679ade741d8, type: 2}
 --- !u!114 &6581048948517944023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -442,7 +440,7 @@ MonoBehaviour:
   _spriteRenderer: {fileID: 6767591441980386091}
   _weaponHolder: {fileID: 4949522664633068246}
   _deathEffect: {fileID: 1209397714114445171, guid: 291b0bc62dbba4245a2154c0abf89c6d, type: 3}
---- !u!114 &5601040846138925514
+--- !u!114 &3995513169374696498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -451,9 +449,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4046991475375814967}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a75ce02c75a8d3940aba3fde883e8642, type: 3}
+  m_Script: {fileID: 11500000, guid: 4fb3ae32efc8ffd4ab713eead825ff6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MaxHealth: 100
+  CurrentHealth:
+    m_InternalValue: 0
 --- !u!114 &8773491002279673756
 MonoBehaviour:
   m_ObjectHideFlags: 0

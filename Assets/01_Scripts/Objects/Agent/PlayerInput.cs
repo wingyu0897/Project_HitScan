@@ -1,8 +1,11 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerInput : NetworkBehaviour
 {
+	[SerializeField] private InputReaderPlayer _inputReader;
+
     private Movement _movement;
 	private WeaponHolder _weaponHolder;
 
@@ -10,42 +13,61 @@ public class PlayerInput : NetworkBehaviour
 	{
 		_movement = GetComponent<Movement>();
 		_weaponHolder = GetComponent<WeaponHolder>();
+
+		BindingInputs();
 	}
 
-	private void Update()
+	public override void OnNetworkSpawn()
 	{
-		MovementInput();
-		WeaponInput();
+		BindingInputs();
 	}
 
-	private void MovementInput()
+	public override void OnNetworkDespawn()
 	{
-		if (!IsOwner) return;
-
-		if (Input.GetKey(KeyCode.D)) _movement.SetMove(Vector2.right);
-		if (Input.GetKey(KeyCode.A)) _movement.SetMove(-Vector2.right);
-
-		if (Input.GetKey(KeyCode.W))
-			_movement.Jump();
+		UnbindingInputs();
 	}
 
-	private void WeaponInput()
+	private void BindingInputs()
 	{
 		if (!IsOwner) return;
 
-		if (Input.GetMouseButtonDown(0))
-			_weaponHolder.TriggerOn();
-		if (Input.GetMouseButtonUp(0))
-			_weaponHolder.TriggerOff();
-		if (Input.GetMouseButton(0))
-			_weaponHolder.TryAttack();
-
-		if (Input.GetKeyDown(KeyCode.R))
-			_weaponHolder.Reload();
-
-		if (Input.GetMouseButton(1))
-			_weaponHolder.Aiming();
-		if (Input.GetMouseButtonUp(1))
-			_weaponHolder.CompleteAiming();
+		_inputReader.OnMoveInput += MoveHandler;
+		_inputReader.OnJumpBeginInput += JumpBeginHandler;
+		_inputReader.OnJumpEndInput += JumpEndHandler;
+		_inputReader.OnAttackBeginInput += AttackBeginHandler;
+		_inputReader.OnAttackEndInput += AttackEndHandler;
+		//_inputReader.OnAttackInput += AttackHandler;
+		_inputReader.OnAimingBeginInput += AimingBeginHandler;
+		_inputReader.OnAimingEndInput += AimingEndHandler;
+		_inputReader.OnReloadInput += ReloadHandler;
 	}
+
+	private void UnbindingInputs()
+	{
+		if (!IsOwner) return;
+
+		_inputReader.OnMoveInput -= MoveHandler;
+		_inputReader.OnJumpBeginInput -= JumpBeginHandler;
+		_inputReader.OnJumpEndInput -= JumpEndHandler;
+		_inputReader.OnAttackBeginInput -= AttackBeginHandler;
+		_inputReader.OnAttackEndInput -= AttackEndHandler;
+		//_inputReader.OnAttackInput -= AttackHandler;
+		_inputReader.OnAimingBeginInput -= AimingBeginHandler;
+		_inputReader.OnAimingEndInput -= AimingEndHandler;
+		_inputReader.OnReloadInput -= ReloadHandler;
+	}
+
+	private void MoveHandler(Vector2 direction) => _movement?.SetMove(direction);
+
+	private void JumpBeginHandler() => _movement?.SetJump(true);
+	private void JumpEndHandler() => _movement?.SetJump(false);
+
+	private void AttackBeginHandler() => _weaponHolder?.TriggerOn();
+	private void AttackEndHandler() => _weaponHolder?.TriggerOff();
+	//private void AttackHandler() => _weaponHolder?.TryAttack();
+
+	private void AimingBeginHandler() => _weaponHolder?.Aiming();
+	private void AimingEndHandler() => _weaponHolder?.CompleteAiming();
+
+	private void ReloadHandler() => _weaponHolder.Reload();
 }

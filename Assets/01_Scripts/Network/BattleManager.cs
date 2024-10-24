@@ -23,6 +23,9 @@ public class BattleManager : NetworkSingleton<BattleManager>
     [SerializeField] private Transform _redTeamSpawn;
     [SerializeField] private Transform _blueTeamSpawn;
 
+	// references
+	public WeaponManager WeaponManager { get; private set; }
+
 	// players
 	private Players _players;
 
@@ -56,6 +59,12 @@ public class BattleManager : NetworkSingleton<BattleManager>
 			StartGame();
 		}
 
+		if (IsOwner) // 주인일 경우에만 스폰을 요청할 수 있다.
+		{
+			WeaponManager = GetComponent<WeaponManager>();
+			UIManager.UIViewManager.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
+		}
+
 		UIManager.SceneUIViewManager.HideView<LoadingView>(); // OnNetworkSpawn이 실행될 때 Game 씬의 모든 요소가 활성화되기 때문에 LoadingView를 내려주는 것 또한 여기서 실행
 	}
 
@@ -69,7 +78,6 @@ public class BattleManager : NetworkSingleton<BattleManager>
 
 	private void Start()
 	{
-		UIManager.UIViewManager.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
 		PlayerAgent.OnPlayerDie += HandlePlayerDie;
 		PlayerAgent.OnPlayerDespawn += HandlePlayerDespawn;
 
@@ -225,16 +233,17 @@ public class BattleManager : NetworkSingleton<BattleManager>
 	private void SpawnPlayer()
 	{
 		// 요청은 클라이언트에서, 생성은 서버에서 한다
-		SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
+		// 오너 클리이언트에서 보내야하는 정보는 오너클라이언트의 Id, 선택된 무기의 이름
+		SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId, WeaponManager.WeaponName);
 	}
 
 	[ServerRpc(RequireOwnership = false)]
-	private void SpawnPlayerServerRpc(ulong clientId)
+	private void SpawnPlayerServerRpc(ulong clientId, string weaponName)
 	{
 		if (!_isSpawnable) return; // 게임 종료 등의 상황에는 스폰이 불가함
 
 		Transform spawnPos = GameManager.Instance.GetTeam(clientId) == TEAM_TYPE.Red ? _redTeamSpawn : _blueTeamSpawn;
-		GameManager.Instance.NetworkServer.RespawnPlayer(clientId, spawnPos.position);
+		GameManager.Instance.NetworkServer.RespawnPlayer(clientId, spawnPos.position, weaponName);
 	}
 	
 	/// <summary>

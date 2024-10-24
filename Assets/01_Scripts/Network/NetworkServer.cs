@@ -80,7 +80,7 @@ public class NetworkServer : IDisposable
 	/// </summary>
 	/// <param name="clientId">생성할 클라이언트의 Id</param>
 	/// <param name="pos">생성할 위치</param>
-	public void RespawnPlayer(ulong clientId, Vector3 pos = default(Vector3))
+	public void RespawnPlayer(ulong clientId, Vector3 pos, string weapon)
 	{
 		// 이미 생성된 플레이어 오브젝트가 있다면 생성하지 않음
 		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
@@ -89,7 +89,7 @@ public class NetworkServer : IDisposable
 		player.SpawnAsPlayerObject(clientId, true);
 
 		PlayerAgent agent = player.GetComponent<PlayerAgent>();
-		agent.WeaponHolder.ChangeWeaponServerRpc(GameManager.Instance.Weapon);
+		agent.WeaponHolder.ChangeWeaponServerRpc(weapon);
 		agent.UserName.Value = GetUserDataByClientID(clientId).UserName;
 		_spawnedPlayerList.Add(agent);
 	}

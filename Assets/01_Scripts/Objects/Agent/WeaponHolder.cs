@@ -5,14 +5,14 @@ public class WeaponHolder : NetworkBehaviour
 {
 	private Movement _movement;
 
-	[SerializeField] private WeaponsSO _weapons;
+	[SerializeField] private WeaponsSO _weapons; // 플레이어가 선택할 수 있는 무기의 데이터
+	[SerializeField] private Weapon _weapon; // 무기 참조
 
-	[SerializeField] private Transform _weaponTrm;
+	[SerializeField] private Transform _weaponTrm; // 무기 트랜스폼
 	[Range(1f, 100f)]
-	[SerializeField] private float _weaponLerp = 15f;
+	[SerializeField] private float _weaponLerp = 15f; // 무기의 움직임 러프
 
-	[SerializeField] private Weapon _weapon;
-
+	private bool _isTriggered = false;
     private Vector2 _beforePos;
 	private Vector3 _mouseWorldPos;
 
@@ -38,6 +38,14 @@ public class WeaponHolder : NetworkBehaviour
 
 		SetRotation();
 		SetPosition();
+	}
+
+	private void Update()
+	{
+		if (!IsOwner) return;
+
+		if (_isTriggered)
+			TryAttack();
 	}
 
 	/// <summary>
@@ -96,6 +104,8 @@ public class WeaponHolder : NetworkBehaviour
 
 	public void TriggerOn()
 	{
+		_isTriggered = true;
+
 		_weapon.ClientId = OwnerClientId;
 		_weapon?.TriggerOn();
 		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
@@ -103,12 +113,14 @@ public class WeaponHolder : NetworkBehaviour
 
 	public void TryAttack()
 	{
-		_weapon.TryAttack();
+		_weapon?.TryAttack();
 		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	public void TriggerOff()
 	{
+		_isTriggered = false;
+
 		_weapon?.TriggerOff();
 		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}

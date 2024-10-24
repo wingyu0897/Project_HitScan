@@ -10,6 +10,8 @@ public class Movement : NetworkBehaviour
 	private Rigidbody2D _rigid;
 
 	private Vector2 _moveDir;
+
+	private bool _isJumping = false;
 	private bool _isGrounded = false;
 	private float _coyoteTimer;
 	private float _slowdown = 1f;
@@ -31,6 +33,7 @@ public class Movement : NetworkBehaviour
 		if (!IsOwner) return;
 
 		Move();
+		Jump();
 	}
 
 	public void SetSlowdown(float slowdown)
@@ -48,16 +51,23 @@ public class Movement : NetworkBehaviour
 		float yVelocity = _isGrounded && _rigid.velocity.y < 0 ? 0 : _rigid.velocity.y;
 		_rigid.velocity = new Vector2(_moveDir.x, yVelocity);
 
-		_moveDir.x = 0;
+		//_moveDir.x = 0;
+	}
+
+	public void SetJump(bool doJump)
+	{
+		_isJumping = doJump;
 	}
 
 	public void Jump()
 	{
-		if (_isGrounded || _coyoteTimer > 0f)
-		{
-			_rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce * _slowdown);
-			_coyoteTimer = 0;
-		}
+		if (!_isJumping) // 점프 안 함
+			return;
+		else if (!_isGrounded && _coyoteTimer <= 0f) // 지면에 닿지 않음 and 코요테 타임도 아님
+			return;
+
+		_rigid.velocity = new Vector2(_rigid.velocity.x, _jumpForce * _slowdown);
+		_coyoteTimer = 0;
 	}
 
 	private void CheckGrounded()

@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
-  m_Name: AutoSample
+  m_Name: SVD
   m_EditorClassIdentifier: 
-  Visual: {fileID: 21300000, guid: cdc4122ecf3219f41b7ea77882fb461b, type: 3}
-  Name: Auto
-  Damage: 100
-  MaxAmmo: 30
-  ReloadTime: 1.2
-  FireRate: 0.1
-  FireRange: 20
-  IsAuto: 1
-  AimingDistance: 3
-  AimingOrthoRatio: 1.2
-  AimingSlowdown: 0.2
+  Visual: {fileID: 21300000, guid: afe51c25bb7d4c14a8b5e133466c4ee4, type: 3}
+  Name: SVD
+  Damage: 35
+  MaxAmmo: 10
+  ReloadTime: 1.5
+  FireRate: 0.4
+  FireRange: 40
+  IsAuto: 0
+  AimingDistance: 18
+  AimingOrthoRatio: 1.7
+  AimingSlowdown: 0.4
   _bulletTrailPrefab: {fileID: 7225524804424330371, guid: 4caf20709bf55bc438cbca4497acf1fc, type: 3}

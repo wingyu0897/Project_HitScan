@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 public class GameReadyView : UIView
 {
+	[Header("Loadout")]
+	[SerializeField] private WeaponSelectUI _weaponSelect;
+	public WeaponSelectUI WeaponSelect => _weaponSelect;
+
+	[Header("GameMode")]
 	[SerializeField] private TextMeshProUGUI _gameModeText;
 
 	[Header("Buttons")]
