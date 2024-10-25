@@ -12,8 +12,8 @@ public class Weapon : NetworkBehaviour
 	public WeaponDataSO Data => _data;
 	private List<TrailRenderer> _trails = new List<TrailRenderer>();
 
-	private int _ammo;
-	public int Ammo => _ammo;
+	private NetworkVariable<int> _ammo = new NetworkVariable<int>();
+	public int Ammo => _ammo.Value;
 	private bool _isTriggered;
 	private bool _isReloading = false;
 	private float _lastFireTime;
@@ -49,9 +49,11 @@ public class Weapon : NetworkBehaviour
 
 	public void ChangeWeapon(WeaponDataSO data)
 	{
+		if (_isReloading) StopAllCoroutines();
+
 		_data = data;
 		_spriteRen.sprite = _data.Visual;
-		_ammo = _data.MaxAmmo;
+		_ammo.Value = _data.MaxAmmo;
 		_lastFireTime = -_data.FireRate;
 	}
 
@@ -71,7 +73,7 @@ public class Weapon : NetworkBehaviour
 	[ServerRpc]
 	private void TriggerOnServerRpc()
 	{
-		if (_ammo == 0)
+		if (_ammo.Value == 0)
 		{
 			// 총알이 없으면 재장전한다
 			Reload();
@@ -87,20 +89,21 @@ public class Weapon : NetworkBehaviour
 
 	public virtual void TryAttack()
 	{
-		TryAttackServerRpc(ClientId);
+		TryAttackServerRpc();
 	}
 
+	// *주의* WeaponScript의 모든 ServerRpc는 RequireOwnership = false를 해주어야 오너가 아닌 서버에서도 실행할 수 있다. 아니면 에러 발생
 	/// <summary>
 	/// 공격이 가능한지 판단하는 서버Rpc 함수
 	/// </summary>
-	[ServerRpc]
-	private void TryAttackServerRpc(ulong clientId)
+	[ServerRpc(RequireOwnership = false)]
+	private void TryAttackServerRpc()
 	{
-		if (_isReloading || _ammo == 0 || (_isTriggered && !_data.IsAuto)) return; // 재장전 중 or 총알 없음 or 연사가 아님
+		if (_isReloading || _ammo.Value == 0 || (_isTriggered && !_data.IsAuto)) return; // 재장전 중 or 총알 없음 or 연사가 아님
 		if (Time.time - _lastFireTime < _data.FireRate) return; // 발사 쿨타임 중일 경우
 
 		AttackClientRpc();
-		AttackServerRpc(clientId);
+		AttackServerRpc();
 	}
 
 	[ClientRpc]
@@ -114,13 +117,13 @@ public class Weapon : NetworkBehaviour
 	///  실제로 공격 여부를 판정하는 서버 RPC 공격 함수
 	/// </summary>
 	/// <param name="clientId">공격하는 클라이언트</param>
-	[ServerRpc]
-	private void AttackServerRpc(ulong clientId)
+	[ServerRpc(RequireOwnership = false)]
+	private void AttackServerRpc()
 	{
-		ClientId = clientId;
+		//ClientId = clientId;
 
 		_lastFireTime = Time.time;
-		--_ammo;
+		--_ammo.Value;
 
 		// --- 레이캐스트 ---
 		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
@@ -134,14 +137,14 @@ public class Weapon : NetworkBehaviour
 			{
 				if (hits[i].collider.attachedRigidbody != null && hits[i].collider.attachedRigidbody.TryGetComponent(out Health health))
 				{
-					if (health.OwnerClientId == ClientId)
+					if (health.OwnerClientId == OwnerClientId)
 					{
 						continue;
 					}
 
-					if (GameManager.Instance.IsAttackable(ClientId, health.OwnerClientId)) // 아군이 아닌지 확인
+					if (GameManager.Instance.IsAttackable(OwnerClientId, health.OwnerClientId)) // 아군이 아닌지 확인
 					{
-						health.Damage(_data.Damage, ClientId, hits[i].point);
+						health.Damage(_data.Damage, OwnerClientId, hits[i].point);
 					}
 				}
 
@@ -160,7 +163,7 @@ public class Weapon : NetworkBehaviour
 		TriggerOffServerRpc();
 	}
 
-	[ServerRpc]
+	[ServerRpc(RequireOwnership = false)]
 	private void TriggerOffServerRpc()
 	{
 		_isTriggered = false;
@@ -168,9 +171,13 @@ public class Weapon : NetworkBehaviour
 
 	public void Reload()
 	{
-		if (!IsServer) return;
+		ReloadServerRpc();
+	}
 
-		if (_isReloading) return; // 장전 중
+	[ServerRpc(RequireOwnership = false)]
+	private void ReloadServerRpc()
+	{
+		if (_isReloading) return;
 
 		_isReloading = true;
 		StartCoroutine(ReloadCo());
@@ -186,13 +193,13 @@ public class Weapon : NetworkBehaviour
 			yield return null;
 		}
 
-		_ammo = _data.MaxAmmo;
+		_ammo.Value = _data.MaxAmmo;
 		_isReloading = false;
 
 		ReloadedClientRpc();
 	}
 
-	[ClientRpc]
+	[ClientRpc(RequireOwnership = false)]
 	private void ReloadedClientRpc()
 	{
 		OnReloaded?.Invoke();
@@ -231,7 +238,7 @@ public class Weapon : NetworkBehaviour
 	[ClientRpc]
 	private void DrawTraceClientRpc(Vector2 start, Vector2 end, float time)
 	{
-		//if (IsOwner) return;
+		if (IsOwner) return;
 
 		DrawTrace(start, end, time);
 	}

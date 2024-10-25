@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -6,9 +5,7 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private WeaponsSO _weaponDatas;
 
     private WeaponDataSO _weapon;
-
-	public string WeaponName
-	{
+	public string WeaponName {
 		get
 		{
 			if (_weapon == null)

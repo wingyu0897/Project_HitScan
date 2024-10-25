@@ -85,11 +85,13 @@ public class NetworkServer : IDisposable
 		// 이미 생성된 플레이어 오브젝트가 있다면 생성하지 않음
 		if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null) return;
 
+		Debug.Log($"Selected Weapon: {weapon}");
+
 		NetworkObject player = GameObject.Instantiate(_playerPrefab, pos, Quaternion.identity);
 		player.SpawnAsPlayerObject(clientId, true);
 
 		PlayerAgent agent = player.GetComponent<PlayerAgent>();
-		agent.WeaponHolder.ChangeWeaponServerRpc(weapon);
+		agent.WeaponHolder.ChangeWeaponServer(weapon);
 		agent.UserName.Value = GetUserDataByClientID(clientId).UserName;
 		_spawnedPlayerList.Add(agent);
 	}

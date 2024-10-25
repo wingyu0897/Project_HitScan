@@ -20,6 +20,8 @@ public class WeaponHolder : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
+		SetWeaponVisualServerRpc();
+
 		if (!IsOwner) return;
 
 		_movement = GetComponent<Movement>();
@@ -51,8 +53,8 @@ public class WeaponHolder : NetworkBehaviour
 	/// <summary>
 	/// 플레이어가 생성될 때 서버에서 실행하는 무기 변경 함수
 	/// </summary>
-	[ServerRpc]
-	public void ChangeWeaponServerRpc(string weaponId)
+	//[ServerRpc(RequireOwnership = false)]
+	public void ChangeWeaponServer(string weaponId)
 	{
 		WeaponDataSO weapon = _weapons.Weapons.Find(x => x.Name == weaponId);
 		if (weapon != null)
@@ -74,6 +76,17 @@ public class WeaponHolder : NetworkBehaviour
 				SetWeaponUI(weapon);
 			}
 		}
+	}
+
+	/// <summary>
+	/// 다른 플레이어가 접속했을 때, 이미 접속해 있는 플레이어의 무기 비주얼을 동기화하는 작업
+	/// </summary>
+	[ServerRpc(RequireOwnership = false)]
+	private void SetWeaponVisualServerRpc()
+	{
+		if (_weapon.Data == null) return;
+
+		ChangeWeaponClientRpc(_weapon.Data.Name);
 	}
 
 	public void SetWeaponUI(WeaponDataSO weapon)
@@ -105,7 +118,6 @@ public class WeaponHolder : NetworkBehaviour
 	public void TriggerOn()
 	{
 		_isTriggered = true;
-
 		_weapon.ClientId = OwnerClientId;
 		_weapon?.TriggerOn();
 		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);

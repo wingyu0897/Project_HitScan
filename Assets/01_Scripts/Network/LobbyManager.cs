@@ -294,7 +294,7 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 		{
 			if (IsLobbyHost())
 			{
-				if (_joinedLobby.Players.Count > 1)
+				if (_hostLobby.Players.Count > 1)
 					MigrateLobbyHost();
 				else
 					DeleteLobby();
@@ -346,6 +346,10 @@ public class LobbyManager : MonoSingleton<LobbyManager>
 			_hostLobby = null;
 		}
 		catch (LobbyServiceException e)
+		{
+			Debug.Log(e);
+		}
+		catch (ArgumentOutOfRangeException e)
 		{
 			Debug.Log(e);
 		}

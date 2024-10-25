@@ -59,11 +59,11 @@ public class BattleManager : NetworkSingleton<BattleManager>
 			StartGame();
 		}
 
-		if (IsOwner) // 주인일 경우에만 스폰을 요청할 수 있다.
-		{
-			WeaponManager = GetComponent<WeaponManager>();
-			UIManager.UIViewManager.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
-		}
+		//if (IsOwner) // 주인일 경우에만 스폰을 요청할 수 있다. <-- 이렇게 만들었다가 안 돼서 생각해보니 Onwer 설정을 안 해서 그런가 싶고, 또 구조상으로 문제 없어 보여서 그냥 뺌
+		//{
+		WeaponManager = GetComponent<WeaponManager>();
+		UIManager.UIViewManager.GetView<GameReadyView>().OnPlayButtonClick += SpawnPlayer;
+		//}
 
 		UIManager.SceneUIViewManager.HideView<LoadingView>(); // OnNetworkSpawn이 실행될 때 Game 씬의 모든 요소가 활성화되기 때문에 LoadingView를 내려주는 것 또한 여기서 실행
 	}
