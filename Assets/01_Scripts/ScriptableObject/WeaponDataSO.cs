@@ -27,4 +27,9 @@ public class WeaponDataSO : ScriptableObject
 
     [Header("ETC")]
     public TrailRenderer _bulletTrailPrefab;
+
+    [Header("Audio")]
+    public AudioClip FireClip;
+    public AudioClip ReloadClip;
+    public AudioClip EmptyClip;
 }

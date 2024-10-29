@@ -7,6 +7,7 @@ using UnityEngine;
 public class Weapon : NetworkBehaviour
 {
 	private SpriteRenderer _spriteRen;
+	private AudioPlayer _audioPlayer;
 
     [SerializeField] private WeaponDataSO _data;
 	public WeaponDataSO Data => _data;
@@ -25,6 +26,7 @@ public class Weapon : NetworkBehaviour
 	private void Awake()
 	{
 		_spriteRen = GetComponent<SpriteRenderer>();
+		_audioPlayer = GetComponent<AudioPlayer>();	
 	}
 
 	public override void OnDestroy()
@@ -99,7 +101,11 @@ public class Weapon : NetworkBehaviour
 	[ServerRpc(RequireOwnership = false)]
 	private void TryAttackServerRpc()
 	{
-		if (_isReloading || _ammo.Value == 0 || (_isTriggered && !_data.IsAuto)) return; // 재장전 중 or 총알 없음 or 연사가 아님
+		if (_isReloading || _ammo.Value == 0 || (_isTriggered && !_data.IsAuto)) // 재장전 중 or 총알 없음 or 연사가 아님
+		{
+			EmptyClipClientRpc();
+			return;
+		}
 		if (Time.time - _lastFireTime < _data.FireRate) return; // 발사 쿨타임 중일 경우
 
 		AttackClientRpc();
@@ -109,6 +115,8 @@ public class Weapon : NetworkBehaviour
 	[ClientRpc]
 	private void AttackClientRpc()
 	{
+		_audioPlayer.PlayAudio(_data.FireClip);
+
 		if (IsOwner)
 			DrawTraceImmediatley();
 	}
@@ -180,6 +188,7 @@ public class Weapon : NetworkBehaviour
 		if (_isReloading) return;
 
 		_isReloading = true;
+		StartReloadClientRpc();
 		StartCoroutine(ReloadCo());
 	}
 
@@ -199,10 +208,24 @@ public class Weapon : NetworkBehaviour
 		ReloadedClientRpc();
 	}
 
+	[ClientRpc]
+	private void StartReloadClientRpc()
+	{
+		if (IsOwner)
+			_audioPlayer.PlayAudio(_data.ReloadClip);
+	}
+
 	[ClientRpc(RequireOwnership = false)]
 	private void ReloadedClientRpc()
 	{
 		OnReloaded?.Invoke();
+	}
+
+	[ClientRpc]
+	private void EmptyClipClientRpc()
+	{
+		if (IsOwner)
+			_audioPlayer.PlayAudio(_data.EmptyClip);
 	}
 	#endregion
 

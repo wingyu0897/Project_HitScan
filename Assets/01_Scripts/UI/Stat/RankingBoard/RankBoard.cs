@@ -76,7 +76,7 @@ public class RankBoard : NetworkBehaviour
 					_rankList.Remove(rbEntity);
 				} 
 				catch (Exception e) {
-					Debug.LogError($"{rbEntity.UserName} [ {rbEntity.ClientID} ] : 삭제중 오류 발생 {e.Message}");
+					Debug.Log($"{rbEntity.UserName} [ {rbEntity.ClientID} ] : 삭제중 오류 발생 {e.Message}");
 				}
 				break;
 			}

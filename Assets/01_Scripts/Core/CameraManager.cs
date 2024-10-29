@@ -1,7 +1,6 @@
 using Cinemachine;
 using System;
 using System.Collections;
-using Unity.Netcode;
 using UnityEngine;
 
 public enum CAMERA_TYPE
@@ -34,10 +33,14 @@ public class CameraManager : MonoSingleton<CameraManager>
 		switch (type)
 		{
 			case CAMERA_TYPE.Player:
+				_mapCam.enabled = false;
+				_playerCam.enabled = true;
 				_mapCam.Priority = 0;
 				_playerCam.Priority = 1;
 				break;
 			case CAMERA_TYPE.Map:
+				_mapCam.enabled = true;
+				_playerCam.enabled = false;
 				_mapCam.Priority = 1;
 				_playerCam.Priority = 0;
 				break;

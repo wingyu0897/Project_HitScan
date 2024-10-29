@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
-  m_Name: AutoSample
+  m_Name: Sample
   m_EditorClassIdentifier: 
-  Visual: {fileID: 21300000, guid: cdc4122ecf3219f41b7ea77882fb461b, type: 3}
-  Name: Auto
-  Damage: 100
-  MaxAmmo: 30
-  ReloadTime: 1.2
-  FireRate: 0.1
-  FireRange: 20
-  IsAuto: 1
-  AimingDistance: 3
-  AimingOrthoRatio: 1.2
-  AimingSlowdown: 0.2
+  Visual: {fileID: 21300000, guid: 2f059fb912e2fd242a80ee5b6ff250df, type: 3}
+  Name: Sample
+  Damage: 50
+  MaxAmmo: 7
+  ReloadTime: 1
+  FireRate: 1
+  FireRange: 50
+  IsAuto: 0
+  AimingDistance: 20
+  AimingOrthoRatio: 1.8
+  AimingSlowdown: 0.5
   _bulletTrailPrefab: {fileID: 7225524804424330371, guid: 4caf20709bf55bc438cbca4497acf1fc, type: 3}
+  FireClip: {fileID: 8300000, guid: 4c7add786b55e114b9b40a6b8b70a36d, type: 3}

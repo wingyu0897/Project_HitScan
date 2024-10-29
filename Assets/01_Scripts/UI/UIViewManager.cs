@@ -40,14 +40,14 @@ public class UIViewManager : MonoBehaviour
 		if (_views.ContainsKey(typeof(T)))
 		{
 			UIView view = _views[typeof(T)];
-			view.Show();
+			view?.Show();
 		}
 	}
 
 	public virtual void ShowView(UIView view)
 	{
 		if (view != null)
-			view.Show();
+			view?.Show();
 	}
 
 	public virtual void HideView<T>() where T : UIView
@@ -55,13 +55,13 @@ public class UIViewManager : MonoBehaviour
 		if (_views.ContainsKey(typeof(T)))
 		{
 			UIView view = _views[typeof(T)];
-			view.Hide();
+			view?.Hide();
 		}
 	}
 
 	public virtual void HideView(UIView view)
 	{
 		if (view != null)
-			view.Hide();
+			view?.Hide();
 	}
 }
