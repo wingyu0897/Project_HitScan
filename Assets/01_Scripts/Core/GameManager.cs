@@ -43,13 +43,13 @@ public class GameManager : MonoSingleton<GameManager>
 	private void HandleServerStart()
 	{
 		if (_joinAsClient) return;
-		UIManager.SceneUIViewManager.HideView<LoadingView>();
+		UIManager.Get<SceneUIViewManager>().HideView<LoadingView>();
 	}
 
 	private void HandleClientStart()
 	{
 		if (!_joinAsClient) return;
-		UIManager.SceneUIViewManager.HideView<LoadingView>();
+		UIManager.Get<SceneUIViewManager>().HideView<LoadingView>();
 	}
 
 	#region Relay
@@ -58,7 +58,8 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		_joinAsClient = false;
 
-		UIManager.SceneUIViewManager.ShowView<LoadingView>();
+		//UIManager.SceneUIViewManager.ShowView<LoadingView>();
+		UIManager.Get<SceneUIViewManager>().ShowView<LoadingView>();
 		SceneManager.LoadScene("Game");
 
 		NetworkServer = new NetworkServer(_playerPrefab);
@@ -76,7 +77,8 @@ public class GameManager : MonoSingleton<GameManager>
 	{
 		_joinAsClient = true;
 
-		UIManager.SceneUIViewManager.ShowView<LoadingView>();
+		//UIManager.SceneUIViewManager.ShowView<LoadingView>();
+		UIManager.Get<SceneUIViewManager>().ShowView<LoadingView>();
 		AsyncOperation operation = SceneManager.LoadSceneAsync("Game");
 
 		while (!operation.isDone)
@@ -111,8 +113,8 @@ public class GameManager : MonoSingleton<GameManager>
 			yield return null;
 
 		// 게임에서 퇴장하는 경우에는 이미 인증을 마친 상황이니 인증 화면이 아닌 로비 화면을 보여준다
-		UIManager.UIViewManager.HideView<AuthenticationView>();
-		UIManager.UIViewManager.ShowView<LobbyView>();
+		UIManager.Get<UIViewManager>().HideView<AuthenticationView>();
+		UIManager.Get<UIViewManager>().ShowView<LobbyView>();
 	}
 
 	#endregion

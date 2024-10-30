@@ -52,8 +52,8 @@ public class LobbyView : UIView
 
 	private void OnJoinedLobbyHandler(object sender, LobbyManager.LobbyEventArgs args)
 	{
-		UIManager.UIViewManager.HideView(this);
-		UIManager.UIViewManager.ShowView<JoinedLobbyView>();
+		UIManager.Get<UIViewManager>().HideView(this);
+		UIManager.Get<UIViewManager>().ShowView<JoinedLobbyView>();
 	}
 
 	private void UpdateLobbyList(List<Lobby> lobbyList)

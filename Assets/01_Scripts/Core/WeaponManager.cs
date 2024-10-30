@@ -16,8 +16,8 @@ public class WeaponManager : MonoBehaviour
 
 	private void Start()
 	{
-		UIManager.UIViewManager.GetView<GameReadyView>().WeaponSelect.CreateList(_weaponDatas); // 무기 데이터를 바탕으로 선택 가능한 무기 UI 제작
-		UIManager.UIViewManager.GetView<GameReadyView>().WeaponSelect.OnWeaponChanged += WeaponChangedHandle;
+		UIManager.Get<UIViewManager>().GetView<GameReadyView>().WeaponSelect.CreateList(_weaponDatas); // 무기 데이터를 바탕으로 선택 가능한 무기 UI 제작
+		UIManager.Get<UIViewManager>().GetView<GameReadyView>().WeaponSelect.OnWeaponChanged += WeaponChangedHandle;
 
 		if (_weapon != null)
 			ChangeWeapon(_weapon.Name);
@@ -30,7 +30,7 @@ public class WeaponManager : MonoBehaviour
 		if (data != null)
 		{
 			_weapon = data;
-			UIManager.UIViewManager.GetView<GameReadyView>().WeaponSelect?.SetVisual(data);
+			UIManager.Get<UIViewManager>().GetView<GameReadyView>().WeaponSelect?.SetVisual(data);
 		}
 	}
 

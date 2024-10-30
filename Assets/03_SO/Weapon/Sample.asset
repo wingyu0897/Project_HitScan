@@ -16,7 +16,7 @@ MonoBehaviour:
   Name: Sample
   Damage: 50
   MaxAmmo: 7
-  ReloadTime: 1
+  ReloadTime: 3
   FireRate: 1
   FireRange: 50
   IsAuto: 0
@@ -25,3 +25,5 @@ MonoBehaviour:
   AimingSlowdown: 0.5
   _bulletTrailPrefab: {fileID: 7225524804424330371, guid: 4caf20709bf55bc438cbca4497acf1fc, type: 3}
   FireClip: {fileID: 8300000, guid: 4c7add786b55e114b9b40a6b8b70a36d, type: 3}
+  ReloadClip: {fileID: 8300000, guid: fd66bfd898cf3d3439f8275451e1676a, type: 3}
+  EmptyClip: {fileID: 8300000, guid: 22080945790ca3742be763e65aedfb6e, type: 3}

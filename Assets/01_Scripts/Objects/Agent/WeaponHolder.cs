@@ -91,12 +91,12 @@ public class WeaponHolder : NetworkBehaviour
 
 	public void SetWeaponUI(WeaponDataSO weapon)
 	{
-		UIManager.UIViewManager.GetView<GamePlayView>().InitWeaponData(weapon.MaxAmmo, weapon.Visual);
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().InitWeaponData(weapon.MaxAmmo, weapon.Visual);
 	}
 
 	private void HandleReloaded()
 	{
-		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	private void SetPosition()
@@ -120,13 +120,13 @@ public class WeaponHolder : NetworkBehaviour
 		_isTriggered = true;
 		_weapon.ClientId = OwnerClientId;
 		_weapon?.TriggerOn();
-		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	public void TryAttack()
 	{
 		_weapon?.TryAttack();
-		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	public void TriggerOff()
@@ -134,7 +134,7 @@ public class WeaponHolder : NetworkBehaviour
 		_isTriggered = false;
 
 		_weapon?.TriggerOff();
-		UIManager.UIViewManager.GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().SetCurrentAmmo(_weapon.Ammo);
 	}
 
 	public void Reload()

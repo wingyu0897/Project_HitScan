@@ -2,6 +2,12 @@ using UnityEngine;
 
 namespace Define
 {
+	public enum SETTING_TYPE
+	{
+		BGM,
+		SFX,
+	}
+
 	public enum MESSAGE_TYPE
 	{
 		Kill,

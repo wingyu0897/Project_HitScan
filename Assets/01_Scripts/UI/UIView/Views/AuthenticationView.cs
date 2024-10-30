@@ -36,8 +36,8 @@ public class AuthenticationView : UIView
 	private void HandleOnSignedIn(object e, System.EventArgs args)
 	{
 		ShowTitle(true);
-		UIManager.UIViewManager.HideView(this);
-		UIManager.UIViewManager.ShowView<LobbyView>();
+		UIManager.Get<UIViewManager>().HideView(this);
+		UIManager.Get<UIViewManager>().ShowView<LobbyView>();
 	}
 
 	private void HandleOnSignInFailed(object sender, EventArgs e)

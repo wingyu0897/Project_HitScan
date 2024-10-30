@@ -20,12 +20,12 @@ public class Players
 	{
 		if (_playerList.ContainsKey(args.ClientID))
 		{
-			UnityEngine.Debug.Log($"클라이언트 ID: {args.ClientID}의 플레이어 오브젝트가 이미 존재합니다.");
+			UnityEngine.Debug.Log($"ClientID: {args.ClientID}의 플레이어 오브젝트가 이미 존재합니다.");
 			return;
 		}
 		
 		_playerList.Add(args.ClientID, args.Player);
-		UnityEngine.Debug.Log($"클라이언트 ID: {args.ClientID}의 플레이어 오브젝트가 생성되었습니다.");
+		UnityEngine.Debug.Log($"ClientID: {args.ClientID}의 플레이어 오브젝트가 생성되었습니다.");
 	}
 
 	/// <summary>
@@ -35,12 +35,12 @@ public class Players
 	{
 		if (!_playerList.ContainsKey(args.ClientID))
 		{
-			UnityEngine.Debug.Log($"클라이언트 ID: {args.ClientID}의 플레이어 오브젝트가 존재하지 않습니다.");
+			UnityEngine.Debug.Log($"ClientID: {args.ClientID}의 플레이어 오브젝트가 존재하지 않습니다.");
 			return;
 		}
 
 		_playerList.Remove(args.ClientID);
-		UnityEngine.Debug.Log($"클라이언트 ID: {args.ClientID}의 플레이어 오브젝트가 제거되었습니다.");
+		UnityEngine.Debug.Log($"ClientID: {args.ClientID}의 플레이어 오브젝트가 제거되었습니다.");
 	}
 
 	/// <summary>

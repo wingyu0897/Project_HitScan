@@ -15,7 +15,7 @@ public class GameReadyView : UIView
 	[Header("Buttons")]
 	[SerializeField] private Button _playBtn;
 	[SerializeField] private Button _leaveBtn;
-	[SerializeField] private Button _optionBtn;
+	[SerializeField] private Button _settingBtn;
 
 	public event Action OnPlayButtonClick;
 
@@ -27,10 +27,16 @@ public class GameReadyView : UIView
 	{ 
 		_playBtn.onClick.AddListener(HandlePlayButtonClick);
 		_leaveBtn.onClick.AddListener(HandleLeaveButtonClick);
+		_settingBtn.onClick.AddListener(HandleSettingButtonClick);
 
 		//_userNameText.SetText(GameManager.Instance.UserName);
 
 		BattleManager.Instance.OnGameStarted += HandleOnGameStarted;
+	}
+
+	private void HandlePlayButtonClick()
+	{
+		OnPlayButtonClick?.Invoke();
 	}
 
 	private void HandleLeaveButtonClick()
@@ -38,9 +44,9 @@ public class GameReadyView : UIView
 		GameManager.Instance.LeaveRelayGame();
 	}
 
-	private void HandlePlayButtonClick()
+	private void HandleSettingButtonClick()
 	{
-		OnPlayButtonClick?.Invoke();
+		UIManager.Get<SettingUIViewManager>().ShowView<SettingView>();
 	}
 
 	private void HandleOnGameStarted(GAME_MODE gameMode)

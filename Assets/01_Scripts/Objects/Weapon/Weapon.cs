@@ -101,12 +101,10 @@ public class Weapon : NetworkBehaviour
 	[ServerRpc(RequireOwnership = false)]
 	private void TryAttackServerRpc()
 	{
-		if (_isReloading || _ammo.Value == 0 || (_isTriggered && !_data.IsAuto)) // 재장전 중 or 총알 없음 or 연사가 아님
-		{
-			EmptyClipClientRpc();
+		if (_isReloading || _ammo.Value == 0 || (_isTriggered && !_data.IsAuto)) // 재장전 중 or 총알 없음 or 연사가 아니면서 이미 발사됨
 			return;
-		}
-		if (Time.time - _lastFireTime < _data.FireRate) return; // 발사 쿨타임 중일 경우
+		if (Time.time - _lastFireTime < _data.FireRate) // 발사 쿨타임 중일 경우
+			return;
 
 		AttackClientRpc();
 		AttackServerRpc();
@@ -212,7 +210,7 @@ public class Weapon : NetworkBehaviour
 	private void StartReloadClientRpc()
 	{
 		if (IsOwner)
-			_audioPlayer.PlayAudio(_data.ReloadClip);
+			_audioPlayer.PlayAudio(_data.ReloadClip); // 재장전 사운드는 자신의 클라이언트에서만 재생된다
 	}
 
 	[ClientRpc(RequireOwnership = false)]

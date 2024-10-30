@@ -31,10 +31,11 @@ public class Health : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIManager.UIViewManager.GetView<GamePlayView>().InitHealthData(MaxHealth);
+			UIManager.Get<UIViewManager>().GetView<GamePlayView>().InitHealthData(MaxHealth);
 		}
 
 		if (!IsHost) return;
+		_lastHitClientId.Value = 256;
 		CurrentHealth.Value = MaxHealth;
 	}
 
@@ -56,7 +57,7 @@ public class Health : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIManager.UIViewManager.GetView<GamePlayView>().SetHealth(MaxHealth, newValue);
+			UIManager.Get<UIViewManager>().GetView<GamePlayView>().SetHealth(MaxHealth, newValue);
 		}
 	}
 

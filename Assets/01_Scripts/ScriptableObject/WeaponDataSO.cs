@@ -19,6 +19,10 @@ public class WeaponDataSO : ScriptableObject
     public float FireRange;
     public bool IsAuto;
 
+    [Header("Recoil")]
+    [Range(0, 180)]
+    public float RacoilRange;
+
     [Header("Aiming")]
     public float AimingDistance;
     public float AimingOrthoRatio = 1f;

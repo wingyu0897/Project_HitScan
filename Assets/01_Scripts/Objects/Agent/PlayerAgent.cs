@@ -50,8 +50,8 @@ public class PlayerAgent : NetworkBehaviour
 
 		if (IsOwner)
 		{
-			UIManager.UIViewManager.HideView<GameReadyView>();
-			UIManager.UIViewManager.ShowView<GamePlayView>();
+			UIManager.Get<UIViewManager>().HideView<GameReadyView>();
+			UIManager.Get<UIViewManager>().ShowView<GamePlayView>();
 
 			CameraManager.Instance.SetCameraTarget(transform);
 			CameraManager.Instance.SetCameraType(CAMERA_TYPE.Player);
@@ -65,7 +65,7 @@ public class PlayerAgent : NetworkBehaviour
 		OnPlayerDespawn?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
 		if (IsOwner)
 		{
-			UIManager.UIViewManager.HideView<GamePlayView>();
+			UIManager.Get<UIViewManager>().HideView<GamePlayView>();
 		}
 	}
 
@@ -103,24 +103,24 @@ public class PlayerAgent : NetworkBehaviour
 		Destroy(gameObject);
 
 		OnPlayerDie?.Invoke(this, new PlayerEventArgs { Player = this, ClientID = OwnerClientId });
-		UIManager.UIViewManager?.GetView<DeathView>().SetKillerText(killerName);
+		UIManager.Get<UIViewManager>()?.GetView<DeathView>().SetKillerText(killerName);
 
 		if (IsOwner)
 		{
 			if (immediately) // 데스캠 없이 즉시 메뉴로 되돌아 가기
 			{
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
-				UIManager.UIViewManager.ShowView<GameReadyView>();
+				UIManager.Get<UIViewManager>().ShowView<GameReadyView>();
 				CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 			}
 			else // 데스캠을 보여준 후 메뉴로 되돌아 가기
 			{
-				UIManager.UIViewManager.ShowView<DeathView>();
+				UIManager.Get<UIViewManager>().ShowView<DeathView>();
 
 				CameraManager.Instance.AimCamera(Vector2.zero, 1.0f, 0.0f);
 				CameraManager.Instance.DeathCam(Health.LastHitClientId, 2.0f, () => {
-					UIManager.UIViewManager.HideView<DeathView>();
-					UIManager.UIViewManager.ShowView<GameReadyView>();
+					UIManager.Get<UIViewManager>().HideView<DeathView>();
+					UIManager.Get<UIViewManager>().ShowView<GameReadyView>();
 					CameraManager.Instance.SetCameraType(CAMERA_TYPE.Map);
 				});
 			}

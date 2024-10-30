@@ -39,6 +39,7 @@ public class Movement : NetworkBehaviour
 	public void SetSlowdown(float slowdown)
 	{
 		_slowdown = 1f - Mathf.Clamp(slowdown, 0, 1f);
+		SetMove(_moveDir.normalized);
 	}
 
 	public void SetMove(Vector2 dir)
