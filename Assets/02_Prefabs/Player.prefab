@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7228273772605682920}
   - component: {fileID: 545592711330511214}
   - component: {fileID: 2051471104631421179}
+  - component: {fileID: 5320953647306909973}
   - component: {fileID: 3661110803592713190}
   m_Layer: 0
   m_Name: Weapon
@@ -197,6 +198,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _data: {fileID: 11400000, guid: 2949a3b1f4eb78f438b63bfa084d0845, type: 2}
   ClientId: 0
+--- !u!114 &5320953647306909973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2239604393876011944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906ba2c71e7bcd7499f7848295737429, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recoilTrm: {fileID: 7237137618251783482}
+  maxAngle: 90
+  maxDistance: 0.3
+  recoilTime: 0.2
+  recoveryTime: 0.7
 --- !u!114 &3661110803592713190
 MonoBehaviour:
   m_ObjectHideFlags: 0

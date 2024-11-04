@@ -7,6 +7,7 @@ using UnityEngine;
 public class Weapon : NetworkBehaviour
 {
 	private SpriteRenderer _spriteRen;
+	private WeaponRecoil _weaponRecoil;
 	private AudioPlayer _audioPlayer;
 
     [SerializeField] private WeaponDataSO _data;
@@ -26,6 +27,7 @@ public class Weapon : NetworkBehaviour
 	private void Awake()
 	{
 		_spriteRen = GetComponent<SpriteRenderer>();
+		_weaponRecoil = GetComponent<WeaponRecoil>();
 		_audioPlayer = GetComponent<AudioPlayer>();	
 	}
 
@@ -130,6 +132,8 @@ public class Weapon : NetworkBehaviour
 
 		_lastFireTime = Time.time;
 		--_ammo.Value;
+
+		_weaponRecoil.DoRecoil(_data.RecoilAngle, _data.RecoilDistance);
 
 		// --- 레이캐스트 ---
 		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));

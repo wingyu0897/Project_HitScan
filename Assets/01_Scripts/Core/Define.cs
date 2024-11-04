@@ -32,4 +32,13 @@ namespace Define
 			};
 		}
 	}
+
+	public struct Ease
+	{
+		public static float OutExpo(float a, float b, float t)
+		{
+			float factor = t == 1 ? 1 : 1 - Mathf.Pow(2, -10 * t);
+			return a + (b - a) * factor;
+		}
+	}
 }

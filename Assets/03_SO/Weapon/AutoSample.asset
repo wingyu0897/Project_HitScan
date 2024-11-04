@@ -20,6 +20,8 @@ MonoBehaviour:
   FireRate: 0.1
   FireRange: 20
   IsAuto: 1
+  RecoilAngle: 4
+  RecoilDistance: 0.01
   AimingDistance: 3
   AimingOrthoRatio: 1.2
   AimingSlowdown: 0.2

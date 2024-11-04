@@ -21,7 +21,8 @@ public class WeaponDataSO : ScriptableObject
 
     [Header("Recoil")]
     [Range(0, 180)]
-    public float RacoilRange;
+    public float RecoilAngle;
+    public float RecoilDistance;
 
     [Header("Aiming")]
     public float AimingDistance;
