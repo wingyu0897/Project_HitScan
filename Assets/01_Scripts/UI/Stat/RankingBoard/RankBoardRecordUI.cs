@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RankBoardRecordUI : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class RankBoardRecordUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _userNameTxt;
     [SerializeField] private TextMeshProUGUI _rankTxt;
     [SerializeField] private TextMeshProUGUI _KillsTxt;
+    [SerializeField] private Image _backImage;
 
     public void SetOwner(ulong clientId)
 	{
@@ -32,4 +34,9 @@ public class RankBoardRecordUI : MonoBehaviour
         _rankTxt.text = Rank.ToString();
         _KillsTxt.text = Kills.ToString();
     }
+
+    public void SetColor(Color32 color)
+	{
+        _backImage.color = color;
+	}
 }

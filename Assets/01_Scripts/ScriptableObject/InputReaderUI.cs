@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [CreateAssetMenu(menuName = "InputReaderUI")]
 public class InputReaderUI : InputReader, InputSystem.IUIActions
@@ -14,8 +15,10 @@ public class InputReaderUI : InputReader, InputSystem.IUIActions
 	public Action OnPointerDown;
 	public Action OnPointerUp;
 	public Action OnPointerUpButton;
+	public Action OnTapDown;
+	public Action OnTapUp;
 
-	public void OnClick(UnityEngine.InputSystem.InputAction.CallbackContext context)
+	public void OnClick(InputAction.CallbackContext context)
 	{
 		if (context.performed)
 		{
@@ -28,6 +31,21 @@ public class InputReaderUI : InputReader, InputSystem.IUIActions
 			//if (context.)
 
 			OnPointerUp?.Invoke();
+			return;
+		}
+	}
+
+	public void OnTap(InputAction.CallbackContext context)
+	{
+		if (context.performed)
+		{
+			OnTapDown?.Invoke();
+			return;
+		}
+
+		if (context.canceled)
+		{
+			OnTapUp?.Invoke();
 			return;
 		}
 	}

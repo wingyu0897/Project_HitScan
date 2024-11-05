@@ -28,6 +28,7 @@ public class WeaponSelectUI : MonoBehaviour, IPointerClickHandler, IPointerEnter
 
 		_inputReader.OnPointerUp += () =>
 		{
+			if (_weaponList == null) return;
 			if (_weaponList.activeInHierarchy && !_isPointerOverUI)
 				ShowList(false);
 		};

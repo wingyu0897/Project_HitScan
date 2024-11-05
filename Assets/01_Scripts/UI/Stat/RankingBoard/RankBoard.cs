@@ -6,9 +6,17 @@ using Define;
 
 public class RankBoard : NetworkBehaviour
 {
+	[Header("References")]
 	[SerializeField] private RankBoardRecordUI _rankboardUIPrefab;
     [SerializeField] private RectTransform _redRankListParent;
     [SerializeField] private RectTransform _blueRankListParent;
+
+	[Header("Input")]
+	[SerializeField] private InputReaderUI _inputReader;
+
+	[Header("Color")]
+	[SerializeField] private Color32 _defaultColor;
+	[SerializeField] private Color32 _myColor;
 
     private NetworkList<RankBoardEntityState> _rankList;
 
@@ -17,8 +25,24 @@ public class RankBoard : NetworkBehaviour
 	private void Awake()
 	{
 		_rankList = new NetworkList<RankBoardEntityState>();
+
+		_inputReader.OnTapDown += HandleTapDown;
+		_inputReader.OnTapUp += HandleTapUp;
 	}
 
+	#region Input
+	private void HandleTapUp()
+	{
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().ShowRankboard(false);
+	}
+
+	private void HandleTapDown()
+	{
+		UIManager.Get<UIViewManager>().GetView<GamePlayView>().ShowRankboard(true);
+	}
+	#endregion
+
+	#region Network
 	public override void OnNetworkSpawn()
 	{
 		if (IsClient)
@@ -98,7 +122,9 @@ public class RankBoard : NetworkBehaviour
 				break;
 		}
 	}
+	#endregion
 
+	#region 구현부
 	// RankList의 값이 변경될 때 UI에 반영하는 함수
 	private void AdjustValueToUIList(RankBoardEntityState value)
 	{
@@ -138,8 +164,11 @@ public class RankBoard : NetworkBehaviour
 			ui.Team = value.Team;
 			ui.SetOwner(value.ClientID);
 			ui.SetName(value.UserName.ToString());
+			ui.SetColor(value.ClientID == NetworkManager.Singleton.LocalClientId ? _myColor : _defaultColor);
+			
 			_rankUIList.Add(ui);
 			UpdateRank();
+
 		}
 	}
 
@@ -218,4 +247,5 @@ public class RankBoard : NetworkBehaviour
 			};
 		}
 	}
+	#endregion
 }

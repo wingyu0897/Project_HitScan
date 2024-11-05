@@ -16,6 +16,9 @@ public class GamePlayView : UIView
     [Header("Message")]
     public MessageManager MessageManager;
 
+    [Header("Rankboard")]
+    [SerializeField] private GameObject rankboard;
+
 	#region Weapon
 	public void InitWeaponData(int maxAmmo, Sprite weaponSprite)
 	{
@@ -43,6 +46,13 @@ public class GamePlayView : UIView
 	}
 	#endregion
 
+	#region Rankboard
+    public void ShowRankboard(bool show)
+	{
+        rankboard.SetActive(show);
+	}
+	#endregion
+
 	#region GameModeUI
-    #endregion
+	#endregion
 }

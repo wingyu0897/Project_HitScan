@@ -13,6 +13,7 @@ public class WeaponHolder : NetworkBehaviour
 	[SerializeField] private float _weaponLerp = 15f; // 무기의 움직임 러프
 
 	private bool _isTriggered = false;
+	private bool _isAiming = false;
     private Vector2 _beforePos;
 	private Vector3 _mouseWorldPos;
 
@@ -48,6 +49,22 @@ public class WeaponHolder : NetworkBehaviour
 
 		if (_isTriggered)
 			TryAttack();
+
+		if (_isAiming)
+		{
+			// 뷰포트 좌표(0 ~ 1)에서 0.5를 낮추어 범위를 -0.5 ~ 0.5로 제한한다
+			// 0.9를 곱하여 범위(-0.5 ~ 0.5) 중에서 -0.45부터 0.45 까지는 조준 거리가 비례한다
+			Vector3 mousePos = (Camera.main.ScreenToViewportPoint(Input.mousePosition) - new Vector3(0.5f, 0.5f)) / 0.9f;
+			float distance = Mathf.Clamp(Mathf.Abs(mousePos.magnitude) * 2.0f, 0, 1.0f) * _weapon.Data.AimingDistance;
+
+			Vector3 mouseDir = _mouseWorldPos - transform.position;
+			mouseDir.z = 0;
+			mouseDir.Normalize();
+
+			Vector3 targetPos = mouseDir * distance;
+
+			CameraManager.Instance.AimCamera(targetPos, _weapon.Data.AimingOrthoRatio);
+		}
 	}
 
 	/// <summary>
@@ -149,24 +166,14 @@ public class WeaponHolder : NetworkBehaviour
 	{
 		if (!IsOwner) return;
 
-		// 뷰포트 좌표(0 ~ 1)에서 0.5를 낮추어 범위를 -0.5 ~ 0.5로 제한한다
-		// 0.9를 곱하여 범위(-0.5 ~ 0.5) 중에서 -0.45부터 0.45 까지는 조준 거리가 비례한다
-		Vector3 mousePos = (Camera.main.ScreenToViewportPoint(Input.mousePosition) - new Vector3(0.5f, 0.5f)) / 0.9f;
-		float distance = Mathf.Clamp(Mathf.Abs(mousePos.magnitude) * 2.0f, 0, 1.0f) * _weapon.Data.AimingDistance;
-
-		Vector3 mouseDir = _mouseWorldPos - transform.position;
-		mouseDir.z = 0;
-		mouseDir.Normalize();
-
-		Vector3 targetPos = mouseDir * distance;
-		
-		CameraManager.Instance.AimCamera(targetPos, _weapon.Data.AimingOrthoRatio);
+		_isAiming = true;
 		_movement.SetSlowdown(_weapon.Data.AimingSlowdown);
 	}
 
 	public void CompleteAiming()
 	{
 		CameraManager.Instance.AimCamera(Vector2.zero);
+		_isAiming = false;
 		_movement.SetSlowdown(0f);
 	}
 }
