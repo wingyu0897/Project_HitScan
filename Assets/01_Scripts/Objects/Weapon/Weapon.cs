@@ -8,6 +8,7 @@ public class Weapon : NetworkBehaviour
 {
 	private SpriteRenderer _spriteRen;
 	private WeaponRecoil _weaponRecoil;
+	private WeaponAnimator _weaponAnimator;
 	private AudioPlayer _audioPlayer;
 
     [SerializeField] private WeaponDataSO _data;
@@ -28,6 +29,7 @@ public class Weapon : NetworkBehaviour
 	{
 		_spriteRen = GetComponent<SpriteRenderer>();
 		_weaponRecoil = GetComponent<WeaponRecoil>();
+		_weaponAnimator = GetComponent<WeaponAnimator>();
 		_audioPlayer = GetComponent<AudioPlayer>();	
 	}
 
@@ -56,7 +58,8 @@ public class Weapon : NetworkBehaviour
 		if (_isReloading) StopAllCoroutines();
 
 		_data = data;
-		_spriteRen.sprite = _data.Visual;
+		_weaponAnimator.ChangeVisual(data.LibraryAsset);
+		//_spriteRen.sprite = _data.Visual;
 		_ammo.Value = _data.MaxAmmo;
 		_lastFireTime = -_data.FireRate;
 	}
@@ -64,7 +67,8 @@ public class Weapon : NetworkBehaviour
 	public void ChangeWeaponClient(WeaponDataSO data)
 	{
 		_data = data;
-		_spriteRen.sprite = _data.Visual;
+		_weaponAnimator.ChangeVisual(data.LibraryAsset);
+		//_spriteRen.sprite = _data.Visual;
 	}
 
 	#region Attack
@@ -118,7 +122,11 @@ public class Weapon : NetworkBehaviour
 		_audioPlayer.PlayAudio(_data.FireClip);
 
 		if (IsOwner)
+		{
+			_weaponAnimator.Fire();
 			DrawTraceImmediatley();
+			_weaponRecoil.DoRecoil(_data.RecoilAngle, _data.RecoilDistance);
+		}
 	}
 
 	/// <summary>
@@ -132,8 +140,6 @@ public class Weapon : NetworkBehaviour
 
 		_lastFireTime = Time.time;
 		--_ammo.Value;
-
-		_weaponRecoil.DoRecoil(_data.RecoilAngle, _data.RecoilDistance);
 
 		// --- 레이캐스트 ---
 		int layer = (1 << LayerMask.NameToLayer("Ground")) | (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
@@ -154,6 +160,7 @@ public class Weapon : NetworkBehaviour
 
 					if (GameManager.Instance.IsAttackable(OwnerClientId, health.OwnerClientId)) // 아군이 아닌지 확인
 					{
+						hits[i].collider.attachedRigidbody?.AddForce(transform.right, ForceMode2D.Impulse);
 						health.Damage(_data.Damage, OwnerClientId, hits[i].point);
 					}
 				}
@@ -198,6 +205,9 @@ public class Weapon : NetworkBehaviour
 	{
 		float timer = _data.ReloadTime;
 
+		_weaponAnimator.SetSpeed(1f / timer);
+		_weaponAnimator.Reload();
+
 		while (timer > 0f)
 		{
 			timer -= Time.deltaTime;
@@ -207,6 +217,7 @@ public class Weapon : NetworkBehaviour
 		_ammo.Value = _data.MaxAmmo;
 		_isReloading = false;
 
+		_weaponAnimator.SetSpeed(1f);
 		ReloadedClientRpc();
 	}
 
@@ -214,7 +225,9 @@ public class Weapon : NetworkBehaviour
 	private void StartReloadClientRpc()
 	{
 		if (IsOwner)
+		{
 			_audioPlayer.PlayAudio(_data.ReloadClip); // 재장전 사운드는 자신의 클라이언트에서만 재생된다
+		}
 	}
 
 	[ClientRpc(RequireOwnership = false)]

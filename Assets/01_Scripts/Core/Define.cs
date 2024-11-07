@@ -40,5 +40,11 @@ namespace Define
 			float factor = t == 1 ? 1 : 1 - Mathf.Pow(2, -10 * t);
 			return a + (b - a) * factor;
 		}
+
+		public static float OutSuperExpo(float a, float b, float t)
+		{
+			float factor = t == 1 ? 1 : 1 - Mathf.Pow(2, -50 * t);
+			return a + (b - a) * factor;
+		}
 	}
 }

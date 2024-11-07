@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
   m_Name: SVD
   m_EditorClassIdentifier: 
+  LibraryAsset: {fileID: 7108339969198208228, guid: e6674e297cc97854f930f06b54f96279, type: 3}
   Visual: {fileID: 21300000, guid: afe51c25bb7d4c14a8b5e133466c4ee4, type: 3}
   Name: SVD
   Damage: 35
@@ -20,7 +21,8 @@ MonoBehaviour:
   FireRate: 0.4
   FireRange: 40
   IsAuto: 0
-  RecoilRange: 4
+  RecoilAngle: 30
+  RecoilDistance: 0.15
   AimingDistance: 18
   AimingOrthoRatio: 1.7
   AimingSlowdown: 0.4

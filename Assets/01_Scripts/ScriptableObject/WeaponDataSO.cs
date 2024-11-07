@@ -4,6 +4,7 @@ using UnityEngine;
 public class WeaponDataSO : ScriptableObject
 {
     [Header("Visual")]
+    public UnityEngine.U2D.Animation.SpriteLibraryAsset LibraryAsset;
     public Sprite Visual;
     public string Name;
 

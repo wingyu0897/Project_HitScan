@@ -15,16 +15,20 @@ public class CameraManager : MonoSingleton<CameraManager>
     [SerializeField] private CinemachineVirtualCamera _playerCam;
 
 	private CinemachineFramingTransposer _transposer;
+	private CinemachineBasicMultiChannelPerlin _perlin;
 	private float _originOrthoSize;
+	private Vector2 _aimOffset;
 	private bool _isAiming = false;
 
 	private Coroutine _orthoSizeCo = null;
 	private Coroutine _deathCamCo = null;
+	private Coroutine _shakeCo = null;
 
 	public void SetCameraTarget(Transform target)
 	{
 		_playerCam.Follow = target;
 		_transposer = _playerCam.GetCinemachineComponent<CinemachineFramingTransposer>();
+		_perlin = _playerCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
 		_originOrthoSize = _playerCam.m_Lens.OrthographicSize;
 	}
 
@@ -45,6 +49,22 @@ public class CameraManager : MonoSingleton<CameraManager>
 				_playerCam.Priority = 0;
 				break;
 		}
+	}
+
+	public void ShakeCam(float intensity, float time)
+	{
+		if (_shakeCo != null)
+			StopCoroutine(_shakeCo);
+		_shakeCo = StartCoroutine(ShakeCo(intensity, time));
+	}
+
+	IEnumerator ShakeCo(float intensity, float time)
+	{
+		_perlin.m_AmplitudeGain = intensity;
+
+		yield return new WaitForSeconds(time);
+
+		_perlin.m_AmplitudeGain = 0;
 	}
 
 	/// <summary>
@@ -76,7 +96,7 @@ public class CameraManager : MonoSingleton<CameraManager>
 	{
 		if (_transposer == null) return;
 
-		_transposer.m_TrackedObjectOffset = offset;
+		_transposer.m_TrackedObjectOffset = offset + _aimOffset;
 
 		if (_isAiming == (orthoSizeRatio == 1f))
 		{
@@ -103,5 +123,11 @@ public class CameraManager : MonoSingleton<CameraManager>
 		_playerCam.m_Lens.OrthographicSize = target;
 
 		_orthoSizeCo = null;
+	}
+	public void SetAimOffset(Vector3 offset)
+	{
+		_aimOffset = offset;
+		if (!_isAiming)
+			_transposer.m_TrackedObjectOffset = offset;
 	}
 }

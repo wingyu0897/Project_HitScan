@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 282d5a74644944f42891b3da2975cc7c, type: 3}
-  m_Name: Sample
+  m_Name: Sniper Rifle
   m_EditorClassIdentifier: 
+  LibraryAsset: {fileID: 7108339969198208228, guid: 64be0cefe0783a94283913d12e63c22e, type: 3}
   Visual: {fileID: 21300000, guid: 2f059fb912e2fd242a80ee5b6ff250df, type: 3}
-  Name: Sample
+  Name: Sniper Rifle
   Damage: 50
   MaxAmmo: 7
-  ReloadTime: 3
+  ReloadTime: 2
   FireRate: 1
   FireRange: 50
   IsAuto: 0
-  RecoilAngle: 20
+  RecoilAngle: 30
   RecoilDistance: 0.22
   AimingDistance: 20
   AimingOrthoRatio: 1.8
