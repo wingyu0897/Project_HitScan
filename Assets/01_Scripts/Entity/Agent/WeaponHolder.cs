@@ -54,8 +54,8 @@ public class WeaponHolder : NetworkBehaviour
 		{
 			// 뷰포트 좌표(0 ~ 1)에서 0.5를 낮추어 범위를 -0.5 ~ 0.5로 제한한다
 			// 0.9를 곱하여 범위(-0.5 ~ 0.5) 중에서 -0.45부터 0.45 까지는 조준 거리가 비례한다
-			Vector3 mousePos = (Camera.main.ScreenToViewportPoint(Input.mousePosition) - new Vector3(0.5f, 0.5f)) / 0.9f;
-			float distance = Mathf.Clamp(Mathf.Abs(mousePos.magnitude) * 2.0f, 0, 1.0f) * _weapon.Data.AimingDistance;
+			Vector3 mouseViewPos = (Camera.main.ScreenToViewportPoint(Input.mousePosition) - new Vector3(0.5f, 0.5f)) / 0.9f;
+			float distance = Mathf.Clamp(Mathf.Abs(mouseViewPos.magnitude) * 2.0f, 0, 1.0f) * _weapon.Data.AimingDistance;
 
 			Vector3 mouseDir = _mouseWorldPos - transform.position;
 			mouseDir.z = 0;

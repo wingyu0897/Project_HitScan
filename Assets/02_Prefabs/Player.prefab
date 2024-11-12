@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe7163a8408a81a4cb59bf104df8bc75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bulletShellEffect: {fileID: 8984834051863913408, guid: c29899c5f5ff6c34ab10b6a449f283c8, type: 3}
+  _bulletShellEffect: {fileID: 1817418499859985524, guid: c29899c5f5ff6c34ab10b6a449f283c8, type: 3}
 --- !u!114 &3661110803592713190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -772,6 +772,7 @@ GameObject:
   - component: {fileID: 1048700025318714064}
   - component: {fileID: 6767591441980386091}
   - component: {fileID: 8688685914018596897}
+  - component: {fileID: 3713668592183555927}
   m_Layer: 7
   m_Name: Visual
   m_TagString: Untagged
@@ -836,7 +837,7 @@ SpriteRenderer:
   m_SortingLayerID: 1660586975
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 823c25fcb01760b408d8c6fc9f45ae87, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -892,3 +893,15 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.5}
   m_EdgeRadius: 0
+--- !u!114 &3713668592183555927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6335972970452378837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aed6424b5de49cb4cab99f91ffada409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

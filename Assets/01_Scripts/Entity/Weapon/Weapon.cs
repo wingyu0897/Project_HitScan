@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class Weapon : NetworkBehaviour
 {
-	private SpriteRenderer _spriteRen;
 	private WeaponRecoil _weaponRecoil;
 	private WeaponAnimator _weaponAnimator;
 	private AudioPlayer _audioPlayer;
@@ -14,6 +13,7 @@ public class Weapon : NetworkBehaviour
     [SerializeField] private WeaponDataSO _data;
 	public WeaponDataSO Data => _data;
 	private List<TrailRenderer> _trails = new List<TrailRenderer>();
+	private PoolManager<TrailRenderer> _trailPoolManager;
 
 	private NetworkVariable<int> _ammo = new NetworkVariable<int>();
 	public int Ammo => _ammo.Value;
@@ -27,7 +27,6 @@ public class Weapon : NetworkBehaviour
 
 	private void Awake()
 	{
-		_spriteRen = GetComponent<SpriteRenderer>();
 		_weaponRecoil = GetComponent<WeaponRecoil>();
 		_weaponAnimator = GetComponent<WeaponAnimator>();
 		_audioPlayer = GetComponent<AudioPlayer>();	
@@ -39,8 +38,9 @@ public class Weapon : NetworkBehaviour
 		if (_trails.Count > 0)
 		{
 			StopAllCoroutines();
-			_trails.ForEach(t => Destroy(t.gameObject));
+			_trails.ForEach(t => _trailPoolManager.Pool.Release(t));
 		}
+		_trailPoolManager.Dispose();
 	}
 
 	public override void OnNetworkSpawn()
@@ -51,6 +51,7 @@ public class Weapon : NetworkBehaviour
 		{
 			ChangeWeapon(_data);
 		}
+		_trailPoolManager = new PoolManager<TrailRenderer>(_data._bulletTrailPrefab, 5, 20);
 	}
 
 	public void ChangeWeapon(WeaponDataSO data)
@@ -283,7 +284,8 @@ public class Weapon : NetworkBehaviour
 
 	private void DrawTrace(Vector2 startPoint, Vector2 hitPoint, float time)
 	{
-		TrailRenderer trail = Instantiate(_data._bulletTrailPrefab, transform.position, Quaternion.identity);
+		//TrailRenderer trail = Instantiate(_data._bulletTrailPrefab, transform.position, Quaternion.identity);
+		TrailRenderer trail = _trailPoolManager.Pool.Get();
 
 		StartCoroutine(DrawTraceCo(trail, startPoint, hitPoint, time));
 	}
@@ -291,8 +293,11 @@ public class Weapon : NetworkBehaviour
 	IEnumerator DrawTraceCo(TrailRenderer trail, Vector2 startPoint, Vector2 hitPoint, float time)
 	{
 		_trails.Add(trail);
-		trail.Clear();
 		float timer = time;
+
+		trail.transform.position = startPoint;
+		trail.Clear();
+
 		while (timer > 0)
 		{
 			timer -= Time.deltaTime;
@@ -304,7 +309,8 @@ public class Weapon : NetworkBehaviour
 
 		yield return new WaitForSeconds(trail.time);
 
-		Destroy(trail.gameObject);
+		//Destroy(trail.gameObject);
+		_trailPoolManager.Pool.Release(trail);
 		_trails.Remove(trail);
 	}
 	#endregion

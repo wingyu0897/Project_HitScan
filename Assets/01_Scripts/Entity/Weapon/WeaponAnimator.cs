@@ -3,7 +3,8 @@ using UnityEngine.U2D.Animation;
 
 public class WeaponAnimator : MonoBehaviour
 {
-	[SerializeField] private ParticleSystem _bulletShellEffect;
+	[SerializeField] private PoolParticle _bulletShellEffect;
+	private PoolManager<PoolParticle> _bulletPoolManager;
 
     private Animator _animator;
 	private SpriteLibrary _spriteLibrary;
@@ -16,6 +17,8 @@ public class WeaponAnimator : MonoBehaviour
 	{
 		_animator = GetComponent<Animator>();
 		_spriteLibrary = GetComponent<SpriteLibrary>();
+
+		_bulletPoolManager = new PoolManager<PoolParticle>(_bulletShellEffect, 30, 100);
 	}
 
 	public void ChangeVisual(SpriteLibraryAsset asset)
@@ -31,7 +34,12 @@ public class WeaponAnimator : MonoBehaviour
 	public void Fire()
 	{
 		_animator.SetTrigger(FireHash);
-		Instantiate(_bulletShellEffect, transform.position, Quaternion.identity);
+
+		PoolParticle bullet = _bulletPoolManager.Pool.Get();
+		bullet.SetPool(_bulletPoolManager);
+		bullet.transform.position = transform.position;
+
+		//Instantiate(_bulletShellEffect, transform.position, Quaternion.identity);
 	}
 
 	public void Reload()
@@ -47,5 +55,10 @@ public class WeaponAnimator : MonoBehaviour
 	public void WeaponAnimationTrigger()
 	{
 
+	}
+
+	private void OnDestroy()
+	{
+		_bulletPoolManager.Dispose();
 	}
 }

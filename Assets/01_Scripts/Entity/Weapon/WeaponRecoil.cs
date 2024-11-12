@@ -90,7 +90,20 @@ public class WeaponRecoil : MonoBehaviour
 			timer += Time.deltaTime;
 			yield return null;
 		}
+
+		CameraManager.Instance.SetAimOffset(Vector3.zero);
+		recoilTrm.localPosition = Vector3.zero;
 		recoilTrm.localRotation = Quaternion.Euler(0, 0, 0);
+
 		recoilCo = null;
+	}
+
+	private void OnDisable()
+	{
+		StopAllCoroutines();
+		CameraManager.Instance.SetAimOffset(Vector3.zero);
+		recoilTrm.localPosition = Vector3.zero;
+		recoilTrm.localRotation = Quaternion.Euler(0, 0, 0);
+
 	}
 }
